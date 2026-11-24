@@ -1,6 +1,6 @@
 quantity,hand formula,hand,model,rel_diff
 "hub, INR/yr","18,00,000 x CRF(10%,10y) + 4,00,000",692941.7108,692941.7108,0.0000
-"drone, INR/yr","(2,00,000 + 45,000 x 10.73 kg) x (CRF(10%,3y) + 0.15)",377071.2221,377071.2221,0.0000
+"drone, INR/yr","(2,00,000 + 45,000 x 10.73 kg) x (CRF(10%,3y) + 0.15)",377070.0073,377070.0073,0.0000
 "bay, INR/yr","90,000 x CRF(10%,5y)",23741.7733,23741.7733,0.0000
 "operator post (1 per shift), INR/yr","4,20,000 x 3 shifts x 1.2",1512000.0000,1512000.0000,0.0000
 usable drone-min per drone per day,0.70 x 1440 x flyable share,953.1123,953.1123,0.0000

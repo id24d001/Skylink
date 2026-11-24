@@ -213,9 +213,9 @@ The model follows the brief's M4 rules:
 |---|---|---|---|---|
 | A | 0 | infeasible | infeasible | ✓ |
 | B | 24 | 87,95,891 | 87,95,891 | ✓ |
-| C | 432 | 70,39,945 | 70,39,945 | ✓ |
+| C | 432 | 70,39,942 | 70,39,942 | ✓ |
 | D | 432 | 73,01,583 | 73,01,583 | ✓ |
-| E | 2,916 | 80,41,895 | 80,41,895 | ✓ |
+| E | 2,916 | 80,41,892 | 80,41,892 | ✓ |
 
 **LP-relaxation gap** (`results/m4_lp_gap.csv`), full instance:
 
@@ -237,6 +237,8 @@ The LP already opens whole hubs, because x_ij ≤ y_j is the tight form. The gap
 - H1→P01 drone-minutes per day (152.4);
 - H1→P01 battery-pack cost;
 - outage hours per day (1.29).
+
+Numbers above are from the full `python run_all.py` chain (M1 designs passed in memory). Running `--only m4` reads the rounded CSV and differs by a few rupees.
 
 ![M4 networks per design](../figures/m4_networks.png)
 ![M4 annual cost vs design](../figures/m4_cost_vs_design.png)
