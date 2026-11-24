@@ -1,0 +1,4 @@
+case,compliance,iterations,grey_index,checkerboard_pct,compliance_p3_of_result
+"density filter, p = 3 (top88 ft = 2)",218.8,126,0.269,0.3568,218.8
+"no filter, p = 3",203.2,63,0.01243,11.51,203.2
+"density filter, p = 1",164.7,34,0.5756,0,425.3

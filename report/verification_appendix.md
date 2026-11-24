@@ -7,7 +7,7 @@ into `figures/` and `results/`.
 |---|---|---|---|
 | M0 | Formulation card review (no code check) | — | ⬜ |
 | M1 | MDA convergence plot; finite-difference gradient check at two step sizes; MDF vs IDF within 1% | `figures/m1_mda_convergence.png`, `figures/m1_gradient_check.png`, `results/m1_gradient_check.csv`, `results/m1_mdf_vs_idf.csv`, `results/m1_hand_check.csv` | ✅ |
-| M2 | MBB-beam benchmark reproduced; no-filter and p = 1 cases explained | — | ⬜ |
+| M2 | MBB-beam benchmark reproduced; no-filter and p = 1 cases explained | `figures/m2_mbb_benchmark.png`, `results/m2_mbb_benchmark.csv`, `results/m2_verification.csv` | ✅ |
 | M3 | LOOCV error table; parity plot; note on oracle noise | `results/m3_loo_table.csv`, `figures/m3_loo_parity.png`, `figures/m3_loo_parity_24pts.png` | 🟡 requests 1+2 |
 | M4 | Brute force on 4-hub, 8-PHC sub-instance matches solver; LP-relaxation gap; big-M justified | — | ⬜ |
 | M5 | One hub, exponential service, no wind/outage vs Erlang C; days chosen so S45 95% CI < ±3 pp | — | ⬜ |
@@ -58,6 +58,49 @@ dm*/dm_pay is 1.870 (re-solve 1.871), and dm*/dR is 0.492 kg/km (re-solve 0.494)
 
 ![M1 trade-off](../figures/m1_tradeoff.png)
 
+## M2 — Hub plate topology
+
+**MBB-beam benchmark** (top88 inputs: 60 × 20 half-beam, vf 0.5, r_min 1.5, same SIMP/OC code as the plate, with a Q4 plane-stress element). `results/m2_mbb_benchmark.csv`.
+
+![M2 MBB benchmark](../figures/m2_mbb_benchmark.png)
+
+| case | compliance | grey index | checkerboard 2×2 patches | compliance of that layout re-evaluated with p = 3 |
+|---|---|---|---|---|
+| density filter, p = 3 | 218.8 | 0.27 | 0.4 % | 218.8 |
+| no filter, p = 3 | 203.2 | 0.01 | 11.5 % | 203.2 |
+| density filter, p = 1 | 164.7 | 0.58 | 0 % | 425.3 |
+
+Explanation (draft, rewrite in own words):
+- **No filter.** The design breaks into checkerboards. Bilinear Q4 elements joined only at corners are artificially stiff, so the optimiser exploits a numerical error. The lower compliance (203 vs 219) is not real, and the layout changes with the mesh. The filter imposes a length scale (r_min) and removes this.
+- **p = 1.** There is no penalty on intermediate density, so the problem becomes a convex variable-thickness sheet, and grey material is as efficient per unit volume as solid. The optimum is mostly grey (grey index 0.58), which cannot be cut from one plate. Its low compliance is only possible because grey is allowed: the same layout re-evaluated with p = 3 has compliance 425, twice that of the p = 3 design. p = 3 makes grey uneconomical and pushes densities to 0/1.
+
+**Plate model and optimiser checks** (`results/m2_verification.csv`):
+
+| check | result |
+|---|---|
+| ACM plate element: simply supported square plate, uniform load, w_max·D/(q a⁴) vs Navier 0.004062 | 8²: +1.6 %, 16²: +0.41 %, 32²: +0.10 %, 64²: +0.026 % (converges) |
+| Quarter model ×4 vs whole plate, solid plate compliance | identical (rel. diff. < 1e-9) |
+| Adjoint dc/dx through the density filter vs central differences (6 elements) | max rel. error 1e-6 (step 1e-4), 3e-5 (step 1e-6) |
+| Mesh: cut-part compliance ratio at vf 0.32, designed on 2 mm vs 1.33 mm mesh | 2.31 vs 2.33 (−0.6 %) → design to 2.4 for margin |
+| 6 mm minimum member: opening the final outline with a 6 mm disk removes | 0.0 mm²; narrowest member measured 6.75 mm |
+
+**Sweep and chosen design** (`results/m2_sweep.csv`, `results/m2_design.csv`, `figures/m2_compliance_vs_mass.png`, `figures/m2_outline.png`, `figures/m2_topologies.png`). Chosen: vf 0.32, cut part 108.7 g, 2.31 × solid compliance, w_max 0.73 mm, peak bending stress 107 MPa (yield 276 MPa) at 2 g with the heaviest battery (186 N).
+
+![M2 compliance vs mass](../figures/m2_compliance_vs_mass.png)
+![M2 outline](../figures/m2_outline.png)
+
+**M1 re-run with the M2 plate (0.25 → 0.109 kg)**, `results/m2_m1_feedback.csv`:
+
+| design | FM0 continuous kg | FM0 snapped kg | surrogate FM continuous kg | surrogate FM snapped kg |
+|---|---|---|---|---|
+| A | 6.617 → 6.388 (−229 g) | 7.220 → 6.773 (−447 g) | 6.890 → 6.658 (−232 g) | 7.251 → 7.081 (−170 g) |
+| B | 7.989 → 7.708 (−282 g) | 8.395 → 8.215 (−180 g) | 8.525 → 8.273 (−252 g) | 8.675 → 8.495 (−180 g) |
+| C | 9.594 → 9.259 (−334 g) | 10.400 → 10.209 (−192 g) | 10.334 → 10.022 (−312 g) | 10.921 → 10.732 (−189 g) |
+| D | 10.275 → 9.916 (−359 g) | 11.020 → 10.829 (−192 g) | 11.128 → 10.793 (−335 g) | 11.782 → 11.641 (−141 g) |
+| E | 13.711 → 13.176 (−536 g) | 15.715 → 15.515 (−200 g) | 14.479 → 14.132 (−347 g) | 15.381 → 15.192 (−189 g) |
+
+The continuous optima fall by 1.6–3.8 × the 141 g saved, because a lighter airframe needs a smaller battery and motors (the M1 mass snowball). From here on, every M1 output in `results/` and the M1 re-run inside M3 use the M2 plate.
+
 ## M3 — Rotor surrogate
 
 ![M3 LOO parity](../figures/m3_loo_parity.png)
@@ -71,7 +114,7 @@ Noise note (draft, rewrite in own words): one repeat (pt 3: 0.4683 vs 0.4730) gi
 
 ### M1 re-run with the surrogate FM (cubic RBF)
 
-`results/m1_fm_comparison.csv`, `results/m1_fm_hover_points.csv`, `figures/m1_fm_rerun.png`. Still air, same required radii as FM0.
+`results/m1_fm_comparison.csv`, `results/m1_fm_hover_points.csv`, `figures/m1_fm_rerun.png`. Still air, same required radii as FM0. _The table below is with the provisional 0.25 kg plate. `run_all.py` now re-runs it with the M2 plate (0.109 kg), so the CSV holds the post-M2 values; see the M2 section for the change._
 
 | design | R_req km | m FM0 → surr. kg | D FM0 → surr. m | E FM0 → surr. Wh | V FM0 → surr. m/s | T loaded / empty, surr. N | FM loaded / empty | FM0 design's R with real FM | snapped surr. kg |
 |---|---|---|---|---|---|---|---|---|---|

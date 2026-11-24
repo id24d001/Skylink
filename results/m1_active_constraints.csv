@@ -1,4 +1,4 @@
 constraint,multiplier,note
-radius >= required,0.905401,objective is m/10 kg; constraints normalised
-f1 >= 1.15 x rotor frequency,0.327879,objective is m/10 kg; constraints normalised
-d at upper bound,0.220459,objective is m/10 kg; constraints normalised
+radius >= required,0.875014,objective is m/10 kg; constraints normalised
+f1 >= 1.15 x rotor frequency,0.311191,objective is m/10 kg; constraints normalised
+d at upper bound,0.20867,objective is m/10 kg; constraints normalised

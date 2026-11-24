@@ -22,6 +22,9 @@ python run_all.py --only m3  # just one (or several) modules
 ```
 
 Outputs go to `results/` (tables, CSV/JSON) and `figures/` (verification plots).
+The full chain takes about 3 minutes; M2 is most of that. For M2 on a 1 mm mesh instead of the
+default 2 mm one, run `SKYLINK_M2_MESH=fine python run_all.py --only m1 m2` (several minutes).
+Running M2 also re-runs M1 with the new plate mass, so M1's files in `results/` are post-M2.
 Modules that are not implemented yet are skipped with a note, so the script always runs end to end.
 
 ### Google Colab
@@ -45,7 +48,7 @@ GitHub tab → search `id24d001/skylink` (tick "Include private repos" if privat
 |---|---|---|---|
 | M0 Problem framing | `src/m0_framing/` | ⬜ | formulation card |
 | M1 Vehicle MDO | `src/m1_vehicle/` | ✅ FM0 = 0.65; 5 snapped designs | `figures/m1_mda_convergence.png`, `figures/m1_gradient_check.png`, `results/m1_mdf_vs_idf.csv`, `results/m1_designs.csv` |
-| M2 Hub plate topology | `src/m2_plate/` | ⬜ | |
+| M2 Hub plate topology | `src/m2_plate/` | ✅ plate-bending SIMP, density filter; vf 0.32 → 108.7 g cut part, 2.31× solid compliance, ≥ 6 mm members; M1 re-run with it | `figures/m2_mbb_benchmark.png`, `results/m2_verification.csv`, `figures/m2_compliance_vs_mass.png`, `figures/m2_outline.png`, `results/m2_plate_outline.dxf`, `results/m2_m1_feedback.csv` |
 | M3 Rotor surrogate | `src/m3_surrogate/` | 🟡 24 runs (requests 1+2) fitted, LOOCV done; RBF cubic chosen; M1 re-run with surrogate FM done; request 3 to plan | `results/m3_loo_table.csv`, `figures/m3_loo_parity.png`, `results/m1_fm_comparison.csv`, `figures/m1_fm_rerun.png` |
 | M4 Hub network and fleet | `src/m4_network/` | ⬜ | |
 | M5 Discrete-event simulator | `src/m5_simulation/` | ⬜ | |
@@ -64,7 +67,7 @@ src/
 ├── common/              repo paths and data loaders shared by all modules
 ├── m0_framing/ … m7_decision/
 │   └── run.py           run(ctx) -> dict; its presence plugs the module into run_all.py
-notebooks/               exploration and step-by-step working (M1_vehicle_MDO, M3_*)
+notebooks/               exploration and step-by-step working (M1_vehicle_MDO, M2_hub_plate_topology, M3_*)
 results/  figures/       written by run_all.py
 report/
 ├── formulation_cards/   M0.md … M7.md (one page each)
