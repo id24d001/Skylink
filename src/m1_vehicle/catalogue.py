@@ -104,7 +104,7 @@ def recheck(prob, x, parts, motor_rating):
 
 
 def snap_max_radius(prob):
-    """Catalogue design with the longest wind-adjusted radius that meets every other constraint."""
+    """Catalogue design with the longest radius (in the problem's headwind) that meets every other constraint."""
     batteries, motors, tubes = load_parts()
     grid = _evaluate_grid(prob, batteries, motors, tubes)
     ok = np.all(grid["g"][1:] >= -1e-9, axis=0)

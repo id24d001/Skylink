@@ -17,7 +17,7 @@ into `figures/` and `results/`.
 ## M1 — Vehicle MDO
 
 **MDA convergence.** Fixed-point iteration on mass from 1, 10 and 40 kg. The error falls by 0.078 per step
-(the slope of eq. 1 in m), as predicted, and reaches 1e-8 kg in 9–10 iterations.
+(the slope of eq. 1 in m), as predicted, and reaches 1e-8 kg in 8–10 iterations.
 
 ![M1 MDA convergence](../figures/m1_mda_convergence.png)
 
@@ -29,10 +29,10 @@ design (20.149 kg, R = 27.27 km, not 29.49 km). See `results/m1_hand_check.csv`.
 
 | point | function | forward 1e-4 | forward 1e-6 | central 1e-4 | central 1e-6 |
 |---|---|---|---|---|---|
-| baseline optimum | objective m | 2.4e-5 | 2.4e-7 | 2.3e-10 | 9.7e-10 |
-| baseline optimum | constraints | 9.4e-3 | 9.4e-5 | 8.2e-7 | 1.2e-8 |
+| baseline optimum | objective m | 2.5e-5 | 2.5e-7 | 2.5e-10 | 1.6e-9 |
+| baseline optimum | constraints | 1.1e-2 | 1.1e-4 | 8.0e-7 | 2.3e-8 |
 | random point | objective m | 3.3e-5 | 3.2e-7 | 4.3e-10 | 1.5e-9 |
-| random point | constraints | 2.5e-4 | 2.5e-6 | 5.0e-8 | 4.8e-9 |
+| random point | constraints | 2.5e-4 | 2.5e-6 | 5.0e-8 | 3.7e-9 |
 
 Forward-difference error falls 100× when h falls 100× (truncation, O(h)), and central differences are O(h²) until
 round-off. The step sweep below shows the classic V, with the minimum near h = 1e-7. Loosening the MDA tolerance from 1e-12
@@ -44,14 +44,14 @@ to 1e-8 barely changes this: the iterates are smooth in x because the iteration 
 
 | design | R_req km | m MDF kg | m IDF kg | difference |
 |---|---|---|---|---|
-| A light | 10.0 | 7.1954 | 7.1954 | < 1e-9 % |
-| B all-but-one | 14.6 | 9.0372 | 9.0372 | < 1e-9 % |
-| C cover-all | 18.4 | 11.1824 | 11.1824 | < 1e-9 % |
-| D 4-hub | 19.7 | 12.1376 | 12.1376 | < 1e-9 % |
-| E reach | 22.7 | 15.2508 | 15.2508 | < 1e-9 % |
+| A light | 10.0 | 6.6170 | 6.6170 | < 1e-9 % |
+| B all-but-one | 14.6 | 7.9892 | 7.9892 | < 1e-9 % |
+| C cover-all | 18.4 | 9.5938 | 9.5938 | < 1e-9 % |
+| D 4-hub | 19.7 | 10.2746 | 10.2746 | < 1e-9 % |
+| E 3-hub | 24.0 | 13.7111 | 13.7111 | < 1e-9 % |
 
-**Multiplier check.** The KKT payload multiplier is 0.281 km per 100 g; a direct re-solve gives 0.283 km.
-dm*/dm_pay is 1.892 (re-solve 1.895), and dm*/dR is 0.673 kg/km (re-solve 0.677).
+**Multiplier check.** The KKT payload multiplier is 0.380 km per 100 g; a direct re-solve gives 0.381 km.
+dm*/dm_pay is 1.870 (re-solve 1.871), and dm*/dR is 0.492 kg/km (re-solve 0.494).
 
 **Snapped designs re-checked.** Every constraint was re-run with catalogue masses and the chosen motor's rating. All 5 are feasible
 (`results/m1_designs.csv`, columns `g: ...`).

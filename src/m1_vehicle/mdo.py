@@ -16,7 +16,7 @@ T_MOTOR_MAX = 100.0      # largest motor in components.csv (M100), N
 T_ORACLE = (8.0, 40.0)   # thrust range the M3 FM oracle accepts, N
 
 CON_NAMES = [
-    "radius (wind-adjusted) >= required",
+    "radius >= required",
     "bending stress <= 200 MPa",
     "tip deflection <= 0.01 L",
     "f1 >= 1.15 x rotor frequency",
@@ -30,7 +30,7 @@ CON_NAMES = [
 @dataclass
 class Problem:
     R_req_km: float              # required one-way radius in the design wind, km
-    wind: float = 0.0            # design headwind for the range check, m/s
+    wind: float = 0.0            # headwind for the range check, m/s (0 = still air, as M1 uses)
     p: Params = field(default_factory=Params)
     oracle_range: bool = True    # keep hover thrust inside the oracle's 8-40 N
     mda_tol: float = 1e-12       # MDA stopping tolerance on |m_k+1 - m_k|, kg
@@ -156,7 +156,7 @@ def design_table_row(prob, x):
 
 
 def solve_max_radius(prob, m_cap=None, n_starts=8, seed=0):
-    """Maximise wind-adjusted radius (optionally with take-off mass <= m_cap).
+    """Maximise radius (in the problem's headwind, 0 = still air) (optionally with take-off mass <= m_cap).
     Used for the 'reach' end of the design set and to check the payload multiplier."""
     def f(z):
         x = prob.to_x(z)

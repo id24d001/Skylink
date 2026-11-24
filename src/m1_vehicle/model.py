@@ -142,6 +142,12 @@ def cruise_power(m, D, V, p=Params()):
     return P / p.eta + p.P_av
 
 
+def radius_in_wind(R_km, V, w):
+    """Brief's headwind model for M4/M5/M7: out-and-back time is 2LV/(V^2 - w^2) instead of 2L/V,
+    so with the same energy the reachable one-way distance becomes R (1 - w^2/V^2)."""
+    return R_km * (1 - np.asarray(w) ** 2 / V**2)
+
+
 # ---------------------------------------------------------------- full analysis
 def analyse(x, m, p=Params(), wind=0.0, m_motor=None, m_arm=None):
     """All outputs for design x at total mass m (m from the MDA, or IDF's coupling variable)."""
