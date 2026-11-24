@@ -189,6 +189,24 @@ Plan sent to the user before building; all five open choices were confirmed as r
   - The main lever is spare packs and bays, not drones. One reserve drone per hub trades about 1 pp more S45 for about 2 pp more road share.
   - Top 3 for M7's robustness test (`results/m6_resim_365.csv`): the knee (E, ₹2.25 cr, 0.889), the highest-S45 E point n5-4-4 (₹2.45 cr, 0.889) and the E point with no reserve, n4-3-4 s5-5-4 (₹2.20 cr, 0.880).
 
+## M7 — Decision and defense
+
+Plan sent to the user before building; every choice was confirmed as recommended (top 3 = M6's knee, highest-S45 and no-reserve E points; wind weeks from the data; uniform Monte Carlo draws; two battery variants; archive re-cost for drone price; knee as the decision rule, tested by minimax regret).
+
+### Predictions written before any M7 run (brief rule 6, "predict, then run")
+Committed to the repo before the first M7 simulation, so the comparison with the results is honest. The results and the check are in the verification appendix (M7, table V5).
+
+| # | Change | Predicted move (knee, unless stated) | Why |
+|---|---|---|---|
+| P1 | Calm week (days 40–46) | S45 up to about 0.97; ranking of the 3 candidates unchanged | no gust grounding, little headwind; only queueing losses remain |
+| P2 | Worst monsoon week (days 209–215) | S45 down to about 0.65–0.75; worst day below 0.4 | 67 of 168 hours grounded; grounding hits every candidate alike |
+| P3 | Monte Carlo, demand ±25 %, availability 90–98 % | P(30-day S45 ≥ 0.90) about 0.2–0.35, similar for all three | nominal S45 is 0.889, just under the line; spread comes mostly from which days are drawn |
+| P4 | Battery +20 %, same drone (more range) | S45 up 2–4 pp, may reach 0.90; cost about +0.5 % | headwind range loss (about 6 % of emergencies for E) mostly recovered; packs cost 20 % more per pack |
+| P5 | Battery +20 %, lighter drone for the same range | S45 within ±1 pp; cost down 2–4 % | lighter, cheaper drone; still-air range unchanged so headwind losses unchanged |
+| P6 | Drone price −30 % | cost down about ₹0.1 cr/yr; knee moves to more drones, S45 up 0–0.5 pp | drones are about 15 % of annual cost; cheaper drones make extra drones a better buy than spares |
+| P7 | Demand +15 %/yr, fleet fixed | S45 holds within 1.5 pp for 1–2 years, then falls; road share and cost rise each year | fleet has slack now (utilisation about 0.3); packs and bays bind first |
+| P8 | Demand +15 %/yr, top-up | about one drone and two spares per hub every two years keeps year-0 service | packs and bays are the binding resources (M5/M6) |
+
 ## Repo
 - One script `run_all.py` runs M0→M7 in order; a module joins the chain once it has `src/<module>/run.py` with `run(ctx)`. Unimplemented modules are skipped, so the chain always runs.
 - Given data copied unchanged into `data/`; any cleaning is done in code and logged here.
