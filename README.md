@@ -23,7 +23,7 @@ python run_all.py --only m3  # just one (or several) modules
 
 Outputs go to `results/` (tables, CSV/JSON) and `figures/` (verification plots).
 The full chain takes about 3 minutes; M2 is most of that. For M2 on a 1 mm mesh instead of the
-default 2 mm one, run `SKYLINK_M2_MESH=fine python run_all.py --only m1 m2` (several minutes).
+default 2 mm one, run `SKYLINK_M2_MESH=fine python run_all.py --only m1 m2` (about 30 minutes; it gave the same ratios within 2 % at vf 0.20 and 0.25).
 Running M2 also re-runs M1 with the new plate mass, so M1's files in `results/` are post-M2.
 Modules that are not implemented yet are skipped with a note, so the script always runs end to end.
 

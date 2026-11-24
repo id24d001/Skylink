@@ -1,7 +1,7 @@
 """M2 pipeline step for run_all.py: hub plate topology (SIMP + density filter), outline, M1 feedback.
 
     python run_all.py --only m2              coarse mesh (2 mm, quarter 40 x 40), about a minute
-    SKYLINK_M2_MESH=fine python run_all.py   1 mm mesh (quarter 80 x 80), several minutes
+    SKYLINK_M2_MESH=fine python run_all.py   1 mm mesh (quarter 80 x 80), about 30 minutes
 
 Writes (results/)
   m2_sweep.csv              per volume fraction: SIMP compliance, cut-outline compliance, masses, ratios
