@@ -1,0 +1,40 @@
+category,part_id,description,capacity,capacity_unit,nominal_voltage_V,max_thrust_N,outer_dia_mm,wall_mm,mass_kg,unit_cost_inr
+battery,B6S-8K,6S Li-ion pack,8000,mAh,22.2,,,,1.18,3900
+battery,B6S-12K,6S Li-ion pack,12000,mAh,22.2,,,,1.78,5900
+battery,B6S-16K,6S Li-ion pack,16000,mAh,22.2,,,,2.37,7800
+battery,B6S-22K,6S Li-ion pack,22000,mAh,22.2,,,,3.26,10700
+battery,B6S-27K,6S Li-ion pack,27000,mAh,22.2,,,,4.00,13200
+battery,B6S-32K,6S Li-ion pack,32000,mAh,22.2,,,,4.74,15600
+motor,M30,BLDC motor + ESC + prop hub,,,,30,,,0.240,10500
+motor,M45,BLDC motor + ESC + prop hub,,,,45,,,0.300,12750
+motor,M60,BLDC motor + ESC + prop hub,,,,60,,,0.360,15000
+motor,M80,BLDC motor + ESC + prop hub,,,,80,,,0.440,18000
+motor,M100,BLDC motor + ESC + prop hub,,,,100,,,0.520,21000
+tube,CF16x0.75,CFRP tube (mass per metre),,,,,16,0.75,0.0557,1620
+tube,CF16x1.0,CFRP tube (mass per metre),,,,,16,1.0,0.0730,1860
+tube,CF16x1.5,CFRP tube (mass per metre),,,,,16,1.5,0.1059,2340
+tube,CF16x2.0,CFRP tube (mass per metre),,,,,16,2.0,0.1363,2820
+tube,CF16x2.5,CFRP tube (mass per metre),,,,,16,2.5,0.1643,3300
+tube,CF20x0.75,CFRP tube (mass per metre),,,,,20,0.75,0.0703,1800
+tube,CF20x1.0,CFRP tube (mass per metre),,,,,20,1.0,0.0925,2100
+tube,CF20x1.5,CFRP tube (mass per metre),,,,,20,1.5,0.1351,2700
+tube,CF20x2.0,CFRP tube (mass per metre),,,,,20,2.0,0.1753,3300
+tube,CF20x2.5,CFRP tube (mass per metre),,,,,20,2.5,0.2130,3900
+tube,CF25x0.75,CFRP tube (mass per metre),,,,,25,0.75,0.0886,2020
+tube,CF25x1.0,CFRP tube (mass per metre),,,,,25,1.0,0.1169,2400
+tube,CF25x1.5,CFRP tube (mass per metre),,,,,25,1.5,0.1716,3150
+tube,CF25x2.0,CFRP tube (mass per metre),,,,,25,2.0,0.2240,3900
+tube,CF25x2.5,CFRP tube (mass per metre),,,,,25,2.5,0.2739,4650
+tube,CF30x0.75,CFRP tube (mass per metre),,,,,30,0.75,0.1068,2250
+tube,CF30x1.0,CFRP tube (mass per metre),,,,,30,1.0,0.1412,2700
+tube,CF30x1.5,CFRP tube (mass per metre),,,,,30,1.5,0.2082,3600
+tube,CF30x2.0,CFRP tube (mass per metre),,,,,30,2.0,0.2727,4500
+tube,CF30x2.5,CFRP tube (mass per metre),,,,,30,2.5,0.3348,5400
+tube,CF35x1.0,CFRP tube (mass per metre),,,,,35,1.0,0.1656,3000
+tube,CF35x1.5,CFRP tube (mass per metre),,,,,35,1.5,0.2447,4050
+tube,CF35x2.0,CFRP tube (mass per metre),,,,,35,2.0,0.3214,5100
+tube,CF35x2.5,CFRP tube (mass per metre),,,,,35,2.5,0.3956,6150
+tube,CF40x1.0,CFRP tube (mass per metre),,,,,40,1.0,0.1899,3300
+tube,CF40x1.5,CFRP tube (mass per metre),,,,,40,1.5,0.2812,4500
+tube,CF40x2.0,CFRP tube (mass per metre),,,,,40,2.0,0.3701,5700
+tube,CF40x2.5,CFRP tube (mass per metre),,,,,40,2.5,0.4565,6900

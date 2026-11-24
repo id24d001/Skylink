@@ -1,0 +1,56 @@
+currency: INR
+discount_rate: 0.1
+operating_hours_per_day: 24
+hub:
+  capex: 1800000
+  life_years: 10
+  opex_per_year: 400000
+  note: landing pad, shelter, 3 kW genset, comms; opex = rent, upkeep, genset standby
+drone:
+  capex_fixed: 200000
+  capex_per_kg_mtow: 45000
+  life_years: 3
+  maintenance_frac_of_capex_per_year: 0.15
+  one_battery_pack_included: true
+battery_pack:
+  cost_per_Wh: 22
+  cycle_life: 500
+  note: spare packs bought separately
+charging_bay:
+  capex: 90000
+  life_years: 5
+  power_kW: 1.5
+  charge_efficiency: 0.9
+staff:
+  salary_per_person_year: 420000
+  drones_per_operator: 4
+  shifts_per_day: 3
+  relief_factor: 1.2
+  note: each open hub needs at least one operator per shift
+energy:
+  grid_per_kWh: 9.0
+  genset_per_kWh: 28.0
+grid_outage:
+  days:
+  - Mon
+  - Wed
+  - Fri
+  start: '14:00'
+  end: '17:00'
+  genset_kW_per_hub: 3.0
+road_fallback:
+  cost_per_trip:
+    emergency: 2500
+    routine: 500
+    lab: 500
+  delivery_time_min:
+    emergency: 120
+    routine: 180
+    lab: 180
+operations:
+  load_and_takeoff_min: 3
+  drop_or_pickup_min: 1
+  battery_swap_turnaround_min: 6
+  gust_grounding_limit_ms: 14.0
+  emergency_target_min: 45
+  emergency_max_wait_before_road_min: 30
