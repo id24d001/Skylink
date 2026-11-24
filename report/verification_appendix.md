@@ -9,7 +9,7 @@ into `figures/` and `results/`.
 | M1 | MDA convergence plot; finite-difference gradient check at two step sizes; MDF vs IDF within 1% | `figures/m1_mda_convergence.png`, `figures/m1_gradient_check.png`, `results/m1_gradient_check.csv`, `results/m1_mdf_vs_idf.csv`, `results/m1_hand_check.csv` | ✅ |
 | M2 | MBB-beam benchmark reproduced; no-filter and p = 1 cases explained | `figures/m2_mbb_benchmark.png`, `results/m2_mbb_benchmark.csv`, `results/m2_verification.csv` | ✅ |
 | M3 | LOOCV error table; parity plot; note on oracle noise | `results/m3_final_error_table.csv`, `figures/m3_loo_parity_final.png`, noise note below | ✅ final (30 runs) |
-| M4 | Brute force on 4-hub, 8-PHC sub-instance matches solver; LP-relaxation gap; big-M justified | — | ⬜ |
+| M4 | Brute force on 4-hub, 8-PHC sub-instance matches solver; LP-relaxation gap; big-M justified | `results/m4_bruteforce.csv`, `results/m4_lp_gap.csv`, `results/m4_bigm_check.csv`, `results/m4_hand_check.csv`, `figures/m4_networks.png` | ✅ |
 | M5 | One hub, exponential service, no wind/outage vs Erlang C; days chosen so S45 95% CI < ±3 pp | — | ⬜ |
 | M6 | Weighted-sum points on or behind NSGA-II front (2-objective slice); re-simulated front vs surrogate | — | ⬜ |
 | M7 | Robustness / reliability / sensitivity tables | — | ⬜ |
@@ -195,3 +195,37 @@ The real FM moves the optimum away from FM0: +4 to +8 % take-off mass and smalle
 The last 6 oracle points moved it by less than 1 %.
 
 Swapping the surrogate (thin-plate or GP instead of cubic RBF) changes the continuous mass by at most 1.6 % (`results/m3_m1_surrogate_sensitivity.csv`). The snapped catalogue designs are identical, except D (11.61 vs 11.64 kg with the GP).
+
+## M4 — Hub network and fleet
+
+**Brute force vs MILP** (`results/m4_bruteforce.csv`).
+- Sub-instance: hubs H1, H3, H5, P09 and PHCs P01–P08, run for every design with the 5 % emergency guard on and off (10 cases).
+- The brute force does not use the MILP matrix. It enumerates every assignment of each PHC to a hub it can reach or to road: 48 assignments for A, up to 5,832 for E. For each one it opens only the hubs used, sizes them directly (n = max(1, ⌈peak busy / capacity⌉), and the same for bays and operators), and checks the guard.
+- Result: 10 of 10 cases give the same optimum cost (max relative difference 2e-16) and the same assignment. The guard-on cases for A and B are infeasible under both methods.
+
+| Design | Guard | Assignments | Feasible | Brute force ₹ | MILP ₹ | Same assignment |
+|---|---|---|---|---|---|---|
+| A | 5 % | 48 | 0 | infeasible | infeasible | ✓ |
+| A | none | 48 | 48 | 1,57,93,928 | 1,57,93,928 | ✓ |
+| B | none | 432 | 432 | 1,16,10,209 | 1,16,10,209 | ✓ |
+| C | 5 % | 2,916 | 64 | 89,11,194 | 89,11,194 | ✓ |
+| D | 5 % | 3,888 | 96 | 87,31,919 | 87,31,919 | ✓ |
+| E | 5 % | 5,832 | 192 | 93,48,167 | 93,48,167 | ✓ |
+
+**LP-relaxation gap** (`results/m4_lp_gap.csv`), full instance:
+
+| Design | MILP ₹ cr | LP ₹ cr | Gap | Fractional y in the LP |
+|---|---|---|---|---|
+| C | 2.842 | 2.612 | 8.1 % | 0 |
+| D | 2.650 | 2.542 | 4.1 % | 2 |
+| E | 2.565 | 2.420 | 5.6 % | 1 |
+
+The gap comes mostly from rounding up drones, bays and operators (for example 3.4 drones → 4, and 0.85 operators → 1). Hub choice contributes little: for C the LP already opens whole hubs. HiGHS closes the gap to 0 in under 1 s.
+
+**Big-M.** The only big-M is n_j ≤ N_max,j·y_j (and the same for b and o). N_max,j is the fleet hub j would need if it flew every PHC it can reach at the peak hour (2–8 drones). No feasible plan can need more at hub j, so the bound is valid and as tight as possible. Opening a hub is linked to assignments by x_ij ≤ y_j, which needs no big-M. Check: doubling every big-M leaves the optimum unchanged to the rupee for C, D and E (`results/m4_bigm_check.csv`).
+
+**Hand check** (`results/m4_hand_check.csv`, design C). Every cost coefficient (hub, drone, bay, operator), each capacity (39.7 drone-min per drone-hour, 1,050 Wh per bay-hour) and the H1→P01 busy time per trip (26.8 min) match an independent calculation from costs.yaml exactly.
+
+![M4 networks per design](../figures/m4_networks.png)
+![M4 annual cost vs design](../figures/m4_cost_vs_design.png)
+

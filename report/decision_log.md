@@ -114,6 +114,23 @@ Format: **[module] decision** — why. Mark AI suggestions as *AI accepted* / *A
 - Reference only: the GP on (log DL, D) scores 5-fold 0.039 ± 0.025 on 29 points, which is not clearly better any more. Keeping (D, T) is confirmed.
 - Data provenance: `notebooks/M3_oracle_request1_LHS.ipynb` prints 15 points (seed 42) that do **not** match the points in `data/oracle/result_1.csv` (different seed or pyDOE version when the request was actually sent). `result_1.csv` is the source of truth; the notebook is kept as a record of the method only. ⬜ To fix: regenerate or annotate the notebook so its points match result_1.
 
+## M4 — Hub network and fleet
+
+- **Design set: the surrogate-FM designs** (`m1_fm_designs.csv`, after M2), not the FM0 = 0.65 set. The FM0 designs fall 1–2 km short of their radius with the real FM. *AI suggestion accepted; confirmed by the user.*
+- **Reach is checked at a 6.4 m/s headwind** (P90 of the hourly mean wind in flyable hours), using the brief's model R(1 − w²/V²). This is where M1 said wind would be applied. The alternative was the median, 3.8 m/s. At 6.4 m/s the radii shrink to 8.2 / 11.9 / 15.7 / 17.4 / 21.6 km (A–E). Flight time uses the same wind. *AI suggestion accepted; confirmed by the user.*
+- **Road allowed for PHCs out of reach, with a 5 % emergency guard.** PHCs sent by road may carry at most 5 % of daily emergencies (1.37 of 27.36 a day), which keeps S45 ≥ 90 % within reach for M5. Forcing every PHC onto drones would leave only design E feasible. *AI suggestion accepted; confirmed by the user.*
+  - ⚠️ This relaxes M0's "coverage is hard: 24 of 24 PHCs by drone" for designs C and D (P17 by road, 4.8 % of emergencies). It does not change the answer: the cheapest network, design E, flies all 24 PHCs. ⬜ User to decide: keep the M0 hard-coverage rule, which makes C and D what-if cases, or update the M0 card to the 5 % guard.
+- **Fleets sized hour by hour (24 capacity rows per hub), not on the daily average.** The 10–11 h peak binds, and the daily average would under-size fleets about 3×. *AI suggestion accepted; confirmed by the user.*
+- **70 % utilisation applied to flyable time:** capacity = 0.70 × 60 min × 0.945 (share of hours with gust < 14 m/s) per drone-hour. The same 70 % cap is applied to bay energy.
+- **Orders placed in grounded hours are costed as road trips** (5–6 % of orders, by class and hour). This keeps road-fallback cost in the objective, as the brief asks, even for drone-served PHCs.
+- **Energy price blends grid and genset:** genset ₹28/kWh for the share of orders in the Mon/Wed/Fri 14–17 h outage, ₹9 otherwise. Battery wear is ₹22/Wh ÷ 500 cycles per Wh cycled.
+- **Busy time per trip = out-and-back flight + 10 min on the ground** (3 load/take-off + 1 drop + 6 swap). The 1 min hover at each end is assumed to fall inside these ground times. Lab pick-ups are the same sortie in reverse.
+- **n_j ≥ y_j added:** an open hub has at least one drone. Without it, P09 could open as a "hub" for itself alone with zero drones.
+- **Solver: scipy.optimize.milp (HiGHS)** instead of PuLP or OR-Tools. SciPy is already a dependency, the model is 248 variables, and every design solves to proven optimality in under 1 s.
+- **Brute-force sub-instance:** hubs H1, H3, H5, P09 and PHCs P01–P08, the west side, where reach and road choices both matter. Run for every design with the guard on and off. It enumerates assignments rather than (y, x) pairs, opening only the hubs used, because opening an unused hub only adds cost.
+- **Outage bay limit (2 bays on a 3 kW genset) not modelled in the MILP.** It is a minute-by-minute effect, left to M5/M6 (spare batteries).
+- **Result:** E is cheapest at ₹2.57 crore a year (5 hubs H1 H2 H4 H5 P09, 17 drones, 13 bays, no road PHCs). D costs ₹2.65 crore and C ₹2.84 crore, each with P17 by road. A and B fail the guard. All are below the ₹5.57 crore all-road cap. The heavier E drone (+₹1.6 lakh capex each) is paid back by flying P17 and by needing fewer drones.
+
 ## Repo
 - One script `run_all.py` runs M0→M7 in order; a module joins the chain once it has `src/<module>/run.py` with `run(ctx)`. Unimplemented modules are skipped, so the chain always runs.
 - Given data copied unchanged into `data/`; any cleaning is done in code and logged here.
