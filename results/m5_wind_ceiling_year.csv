@@ -1,0 +1,4 @@
+design,days,S45_mean,S45_ci_half,emergencies,within 45 min,"drone, later than 45 min",road: gust grounding,road: headwind range,road: no drone or pack free
+C cover-all,365,0.8810,0.0150,9919,0.8818,0.0015,0.0529,0.0637,0.0000
+D 4-hub,365,0.8824,0.0145,10072,0.8811,0.0012,0.0531,0.0646,0.0000
+E 3-hub,365,0.8904,0.0153,9963,0.8899,0.0012,0.0575,0.0514,0.0000

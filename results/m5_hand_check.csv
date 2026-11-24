@@ -1,0 +1,6 @@
+quantity,by_hand,simulator,abs_diff
+delivery time (min),14.009009,14.009009,0.000000
+sortie energy (Wh),354.828254,354.828254,0.000000
+grid energy (Wh),394.253615,394.253615,0.000000
+"drone busy, incl. recharge of its own pack + swap (min)",45.788163,45.788163,0.000000
+wait for a charged pack (min),15.770145,15.770145,0.000000

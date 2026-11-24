@@ -22,7 +22,7 @@ python run_all.py --only m3  # just one (or several) modules
 ```
 
 Outputs go to `results/` (tables, CSV/JSON) and `figures/` (verification plots).
-The full chain takes about 3 minutes; M2 is most of that. For M2 on a 1 mm mesh instead of the
+The full chain takes about 6 minutes; M2 (about 3 min) and M5 (about 1.5 min, mostly the Erlang C runs and the live-view GIF) are most of that. For M2 on a 1 mm mesh instead of the
 default 2 mm one, run `SKYLINK_M2_MESH=fine python run_all.py --only m1 m2` (about 30 minutes; it gave the same ratios within 2 % at vf 0.20 and 0.25).
 Running M2 also re-runs M1 with the new plate mass, so M1's files in `results/` are post-M2.
 Modules that are not implemented yet are skipped with a note, so the script always runs end to end.
@@ -51,7 +51,7 @@ GitHub tab → search `id24d001/skylink` (tick "Include private repos" if privat
 | M2 Hub plate topology | `src/m2_plate/` | ✅ plate-bending SIMP, density filter; vf 0.32 → 108.7 g cut part, 2.31× solid compliance, ≥ 6 mm members; M1 re-run with it | `figures/m2_mbb_benchmark.png`, `results/m2_verification.csv`, `figures/m2_compliance_vs_mass.png`, `figures/m2_outline.png`, `results/m2_plate_outline.dxf`, `results/m2_m1_feedback.csv` |
 | M3 Rotor surrogate | `src/m3_surrogate/` | ✅ 30 runs fitted and verified (LOO, 5-fold, hold-out); cubic RBF; M1 re-run with it | `results/m3_loo_table.csv`, `figures/m3_loo_parity.png`, `results/m1_fm_comparison.csv`, `figures/m1_fm_rerun.png` |
 | M4 Hub network and fleet | `src/m4_network/` | ✅ MILP (HiGHS) per design, brief's rules (every PHC served, still-air reach with reserve, 70 % on mean demand); D cheapest ₹1.69 cr/yr (4 hubs, 8 drones); A, B infeasible; brute force matches | `results/m4_cost_vs_design.csv`, `results/m4_bruteforce.csv`, `results/m4_lp_gap.csv`, `figures/m4_networks.png` |
-| M5 Discrete-event simulator | `src/m5_simulation/` | ⬜ | |
+| M5 Discrete-event simulator | `src/m5_simulation/` | ✅ SimPy day simulator on the M4 networks; Erlang C check 8/8, 73 days for ±3 pp; D as M4: S45 0.851 ± 0.025, wind ceiling 0.88–0.89; live view GIF | `figures/m5_mmc_check.png`, `results/m5_mmc_check.csv`, `results/m5_days_ci.csv`, `results/m5_kpis.csv`, `figures/m5_results.png`, `figures/m5_live_day.gif` |
 | M6 Multi-objective optimisation | `src/m6_moo/` | ⬜ | |
 | M7 Decision and defense | `src/m7_decision/` | ⬜ | |
 

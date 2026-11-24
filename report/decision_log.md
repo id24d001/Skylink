@@ -138,6 +138,29 @@ Re-checked against the brief's M4 rules at the user's request. The first version
   - E saves a hub and 2 operator posts but pays for heavier drones and bigger packs. All are far below the ₹5.57 crore all-road cap.
   - The 8 drones are a floor from averages. M5/M6 will add drones and spares for the S45 target.
 
+## M5 — Discrete-event simulator
+
+Plan agreed with the user before building (all five open choices accepted as recommended). Every rule is taken from the brief's M5 section or costs.yaml; anything the brief leaves open is listed on the M5 card.
+
+- **Tool: SimPy (4.1.1), not a hand-written event loop.** The brief names it ("SimPy or similar"). It is pure Python, 27 KB, no other dependencies, and installs in one line on Colab. A hand-written heap loop would be more code to verify. *AI suggestion accepted by the user.*
+- **Live view: matplotlib animation saved as a GIF**, not a web dashboard. It needs no new dependency and runs inside `run_all.py`. *AI suggestion accepted.*
+- **Network evaluated: design D as M4 sized it** (H1 H2 H6 P09, 8 drones, 4 bays), with C and E for comparison. A and B are infeasible in M4.
+- **Day = 00:00–24:00 from an empty state**, wind from a random day of the year. **wind_days.csv day 1 = Monday**, which sets the outage days; the file has no weekday. *AI suggestion accepted by the user.*
+- **Routine and lab orders still waiting at 24:00 go by road** ("same day"). The brief gives a road deadline only for emergencies (30 min). *AI suggestion accepted by the user.*
+- **Spare packs = 0 by default**, as M4 costed it. A drone waits for a charged pack. Spares are an M6 decision. *AI suggestion accepted by the user.*
+- **Reserve = round-half-up(25 % of a hub's drones)**, so 1 drone at hubs with 2 or more. The fraction is an M6 decision. *AI suggestion accepted by the user.*
+- **A sortie out of range in this hour's headwind waits, as if grounded.** It uses the brief's 2LV/(V²−w²) model for energy, checked against E_use with the 15 % reserve. *AI suggestion accepted by the user.*
+- **One sortie per order, and P09 served at P09 by hand-over**, both kept consistent with M4.
+- **Outage: bays above 2 are pre-empted at 14:00** (3 kW genset ÷ 1.5 kW), as in M4. Design D has 1 bay per hub, so the outage changes the energy price there, not bay capacity.
+- **Erlang C service time = M4's mean drone time at H2 (36.7 min)**, so the check runs at the scale the real model works at. Cases: c = 1–3, ρ = 0.5–0.9. *Run length raised to 150k orders* after the 60k run missed one CI by 0.5 min. The seed was not changed, to avoid picking a seed that passes.
+- **Days: sequential pilot rule, then extended until every configuration's CI is < ±3 pp** (73 days). The same days and seeds are used for all configurations (common random numbers), which M6 needs to compare designs fairly. *Alternative considered:* all 365 days once. That is used only for the wind-ceiling check, since it costs 5× more per configuration.
+- **Added (not asked for): a cause for every missed emergency** (grounding / headwind range / no drone or pack / late), and an unlimited-fleet "wind ceiling". These show what M6 can and cannot fix with fleet decisions.
+- **Result to carry forward:**
+  - D as M4: S45 0.851 ± 0.025 against the 0.90 target, which is below target, as predicted before running.
+  - The prediction's reason was only partly right. The limit is not drone-minutes at the 10–15 h peak (utilisation is 0.46). It is packs and bays (no spares), the reserve, and wind.
+  - Even an unlimited fleet reaches only 0.88–0.89 over the year. Grounding costs 5–6 % and headwind range 5–7 %. P11 and P17 from H2 sit within 0.1–1.5 km of D's still-air radius.
+  - This is the cost of the still-air reach rule (M1/M4 decision). M6 cannot fix it with drones, bays or spares alone. Changing the vehicle (E) or the reach rule is an M6/M7 decision for the user.
+
 ## Repo
 - One script `run_all.py` runs M0→M7 in order; a module joins the chain once it has `src/<module>/run.py` with `run(ctx)`. Unimplemented modules are skipped, so the chain always runs.
 - Given data copied unchanged into `data/`; any cleaning is done in code and logged here.
