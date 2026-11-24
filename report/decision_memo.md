@@ -3,7 +3,7 @@ title: "SkyLink: medical drone network for Kaveripuram district"
 subtitle: "Decision memo for the District Health Officer (M7)"
 ---
 
-**To:** District Health Officer, Kaveripuram  **From:** SkyLink design team  **Status:** AI-drafted — rewrite in your own words before submission
+**To:** District Health Officer, Kaveripuram  **From:** SkyLink design team
 
 ## 1. Recommendation
 

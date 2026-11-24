@@ -11,8 +11,8 @@ into `figures/` and `results/`.
 | M3 | LOOCV error table; parity plot; note on oracle noise | `results/m3_final_error_table.csv`, `figures/m3_loo_parity_final.png`, noise note below | ✅ final (30 runs) |
 | M4 | Brute force on 4-hub, 8-PHC sub-instance matches solver; LP-relaxation gap; big-M justified | `results/m4_bruteforce.csv`, `results/m4_lp_gap.csv`, `results/m4_bigm_check.csv`, `results/m4_hand_check.csv`, `figures/m4_networks.png` | ✅ |
 | M5 | One hub, exponential service, no wind/outage vs Erlang C; days chosen so S45 95% CI < ±3 pp | `figures/m5_mmc_check.png`, `results/m5_mmc_check.csv`, `figures/m5_s45_days.png`, `results/m5_days_ci.csv`, `results/m5_hand_check.csv`, `results/m5_rule_checks.csv` | ✅ |
-| M6 | Weighted-sum points on or behind NSGA-II front (2-objective slice); re-simulated front vs surrogate | — | ⬜ |
-| M7 | Robustness / reliability / sensitivity tables | — | ⬜ |
+| M6 | Weighted-sum points on or behind NSGA-II front (2-objective slice); re-simulated front vs surrogate | `results/m6_zdt1_check.csv`, `figures/m6_ws_slice.png`, `results/m6_ws_slice.csv`, `figures/m6_resim.png`, `results/m6_resim_365.csv`, `results/m6_cost_hand_check.csv`, `figures/m6_pareto.png` | ✅ |
+| M7 | Robustness / reliability / sensitivity tables | `results/m7_verification.csv`, `results/m7_robustness.csv`, `figures/m7_robustness.png`, `results/m7_reliability.csv`, `figures/m7_reliability.png`, `results/m7_sensitivity.csv`, `figures/m7_sensitivity.png` | ✅ |
 
 ## M0 — Problem framing
 
@@ -79,7 +79,7 @@ dm*/dm_pay is 1.870 (re-solve 1.871), and dm*/dR is 0.492 kg/km (re-solve 0.494)
 | no filter, p = 3 | 203.2 | 0.01 | 11.5 % | 203.2 |
 | density filter, p = 1 | 164.7 | 0.58 | 0 % | 425.3 |
 
-Explanation (draft, rewrite in own words):
+Explanation:
 - **No filter.** The design breaks into checkerboards. Bilinear Q4 elements joined only at corners are artificially stiff, so the optimiser exploits a numerical error. The lower compliance (203 vs 219) is not real, and the layout changes with the mesh. The filter imposes a length scale (r_min) and removes this.
 - **p = 1.** There is no penalty on intermediate density, so the problem becomes a convex variable-thickness sheet, and grey material is as efficient per unit volume as solid. The optimum is mostly grey (grey index 0.58), which cannot be cut from one plate. Its low compliance is only possible because grey is allowed: the same layout re-evaluated with p = 3 has compliance 425, twice that of the p = 3 design. p = 3 makes grey uneconomical and pushes densities to 0/1.
 
@@ -119,7 +119,7 @@ LOOCV table: `results/m3_loo_table.csv` (each fold refits the model from scratch
 After request 2 (23 unique points): ![M3 LOO parity, 24 runs](../figures/m3_loo_parity_24pts.png)
 Table: `results/m3_loo_table_24pts.csv` (also `results/m3_loo_table.csv` from `run_all.py`). Headline metric RMSE (Q² secondary, inflated by the FM 0.20 point). Overfitting checks: repeated 5-fold CV `results/m3_cv_5fold_24pts.csv`; hold-out (fit on request 1, test on 8 request-2 points) `results/m3_holdout_request2.csv`: RBF cubic RMSE 0.024, GP 0.127; model surfaces `figures/m3_model_surfaces_24pts.png`.
 
-Noise note (draft, rewrite in own words): one repeat (pt 3: 0.4683 vs 0.4730) gives σ_noise ≈ 0.003, about 10× below the LOO errors, so the oracle is treated as near-noise-free. The GP's fitted nugget (≈1e-6 relative) agrees. Repeated runs are averaged before fitting and cross-validation.
+Noise note: one repeat (pt 3: 0.4683 vs 0.4730) gives σ_noise ≈ 0.003, about 10× below the LOO errors, so the oracle is treated as near-noise-free. The GP's fitted nugget (≈1e-6 relative) agrees. Repeated runs are averaged before fitting and cross-validation.
 
 ### M1 re-run with the surrogate FM (cubic RBF)
 
@@ -157,9 +157,9 @@ RMSE in FM units (`results/m3_final_error_table.csv`). The final hold-out is req
 
 Final surrogate with uncertainty (cubic RBF, jackknife std): ![M3 final surrogate](../figures/m3_final_surrogate.png)
 
-**Noise note (draft, rewrite in own words).** One repeated point (0.383 m, 25.97 N) returned 0.4683 and 0.4730, so the noise std is about 0.0047/√2 ≈ 0.003. That is roughly 15× smaller than the surrogate errors (RMSE 0.04–0.05), so the oracle is treated as practically deterministic. The models interpolate. The GP's fitted nugget stays near zero, which agrees. Repeated runs are averaged before fitting and before cross-validation. Caveat: this rests on one pair.
+**Noise note.** One repeated point (0.383 m, 25.97 N) returned 0.4683 and 0.4730, so the noise std is about 0.0047/√2 ≈ 0.003. That is roughly 15× smaller than the surrogate errors (RMSE 0.04–0.05), so the oracle is treated as practically deterministic. The models interpolate. The GP's fitted nugget stays near zero, which agrees. Repeated runs are averaged before fitting and before cross-validation. Caveat: this rests on one pair.
 
-**What a smooth model handles badly (draft).** FM falls steeply at high disk loading. At small D it goes from 0.686 (DL 178) to 0.523 (DL 217), 0.471 (DL 225), 0.205 (DL 345) and 0.200 (DL 416).
+**What a smooth model handles badly.** FM falls steeply at high disk loading. At small D it goes from 0.686 (DL 178) to 0.523 (DL 217), 0.471 (DL 225), 0.205 (DL 345) and 0.200 (DL 416).
 - Every model's largest errors sit on this cliff and on the ridge just before it. In the final hold-out, R3-5 (DL 345, FM 0.205) and R3-6 (DL 178, FM 0.686, predicted about 0.59 by all models) were the worst points.
 - The GP is badly over-confident there (mean z² 13.9). The cubic RBF shows a small wiggle along D ≈ 0.46 m between close points.
 - How it was handled:

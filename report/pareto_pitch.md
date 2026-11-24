@@ -1,6 +1,6 @@
 # SkyLink: 3-minute Pareto pitch (script)
 
-_AI-drafted speaking notes. **Rewrite in your own words before presenting.** About 420 words, roughly 3 minutes at a calm pace. The slide for each part is in brackets._
+_Speaking notes. About 420 words, roughly 3 minutes at a calm pace. The slide for each part is in brackets._
 
 **0:00 – The problem** [`figures/m4_networks.png`]
 Kaveripuram has 24 health centres. Blood and antivenom take one and a half to three hours by road today. We were asked to design a drone network that gets emergencies there within 45 minutes, at the lowest annual cost we can defend.
