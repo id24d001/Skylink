@@ -34,6 +34,8 @@ class Problem:
     p: Params = field(default_factory=Params)
     oracle_range: bool = True    # keep hover thrust inside the oracle's 8-40 N
     mda_tol: float = 1e-12       # MDA stopping tolerance on |m_k+1 - m_k|, kg
+    fm_domain: object = None     # optional: keeps (D, T) loaded and empty inside the region the
+                                 # FM surrogate was fitted on; callable (D, T) -> slacks >= 0, with .names
 
     # -- scaling
     @staticmethod
@@ -56,11 +58,20 @@ class Problem:
         ]
         if self.oracle_range:
             g += [1 - r["T_hover_loaded"] / T_ORACLE[1], r["T_hover_empty"] / T_ORACLE[0] - 1]
+        g = [np.asarray(gi) for gi in g]
+        if self.fm_domain is not None:
+            D = r["D_m"]
+            for T in (r["T_hover_loaded"], r["T_hover_empty"]):
+                g += list(self.fm_domain(D + 0 * T, T))
         return np.array(g)
 
     @property
     def con_names(self):
-        return CON_NAMES if self.oracle_range else CON_NAMES[:6]
+        names = CON_NAMES if self.oracle_range else CON_NAMES[:6]
+        if self.fm_domain is not None:
+            names = names + [f"{s} FM data region: {n}" for s in ("loaded", "empty")
+                             for n in self.fm_domain.names]
+        return names
 
     # ---------------------------------------------------------------- MDF
     def mdf_f(self, z):

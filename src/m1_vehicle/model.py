@@ -180,7 +180,7 @@ def analyse(x, m, p=Params(), wind=0.0, m_motor=None, m_arm=None):
         E_use_Wh=E_use / 3600, R_km=R / 1000, R_wind_km=R_wind / 1000,
         sigma_MPa=sigma / 1e6, defl_mm=defl * 1e3, defl_lim_mm=0.01 * L * 1e3,
         f1_Hz=f1, f1_req_Hz=1.15 * f_rot, d_over_t=d / t, L=L,
-        FM_loaded=p.fm(D, m * G / p.n), FM_empty=p.fm(D, m_empty * G / p.n),
+        FM_loaded=p.fm(D, m * G / p.n), FM_empty=p.fm(D, m_empty * G / p.n), D_m=D,
     )
 
 

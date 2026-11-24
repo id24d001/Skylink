@@ -4,7 +4,10 @@ Writes
   results/m3_loo_table.csv      LOOCV error table (verification table for M3)
   results/m3_gp_hyperparameters.csv
   figures/m3_loo_parity.png     LOO parity plot (verification figure for M3)
-Returns the fitted GP so later modules (M1 re-run) can use FM(D, T).
+  + M1 re-run with the chosen surrogate (cubic RBF, user's choice by cross-validation):
+    results/m1_fm_*.csv, figures/m1_fm_rerun.png (see m1_vehicle/fm_rerun.py)
+Returns the cubic RBF as ctx["fm_surrogate"] (FM for M1 and later modules) and the GP as
+ctx["fm_gp"], kept only for its uncertainty (sigma map, adaptive sampling).
 """
 import matplotlib
 matplotlib.use("Agg")
@@ -61,4 +64,14 @@ def run(ctx):
     fig.savefig(FIGURES / "m3_loo_parity.png", dpi=150)
     plt.close(fig)
 
-    return {"fm_surrogate": gp, "loo_table": table}
+    # ---- chosen surrogate: cubic RBF (best LOO / 5-fold / hold-out); GP kept for sigma only
+    from . import FMFunction, FMDomain
+    rbf = RBFSurrogate("cubic", 0.0).fit(X, y)
+    fm = FMFunction(rbf, "RBF cubic")
+    domain = FMDomain(df.D_m.values, df.T_N.values)
+    print("  re-running M1 with FM(D, T) = cubic RBF (hover points kept inside the sampled hull)")
+    from m1_vehicle.fm_rerun import rerun
+    out = rerun(ctx, fm, domain, gp=gp)
+
+    return {"fm_surrogate": fm, "fm_model": rbf, "fm_gp": gp, "fm_domain": domain,
+            "loo_table": table, **out}

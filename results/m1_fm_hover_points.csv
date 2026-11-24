@@ -1,0 +1,21 @@
+design,version,state,D_m,T_N,DL,FM_surr,in_8_40N,inside_sampled_hull,hull_slack,FM_gp,gp_sigma
+A light,continuous,loaded,0.52437,16.898,78.246,0.6527,True,True,0.27806,0.65551,0.0035863
+A light,continuous,empty,0.52437,10.767,49.855,0.59972,True,True,0.086455,0.59907,0.0020846
+B all-but-one,continuous,loaded,0.6895,20.907,55.991,0.62444,True,True,0.24411,0.62488,0.0010453
+B all-but-one,continuous,empty,0.6895,14.775,39.571,0.57409,True,True,0.21173,0.57989,0.0039364
+C cover-all,continuous,loaded,0.68556,25.344,68.66,0.64461,True,True,0.25238,0.64743,0.002416
+C cover-all,continuous,empty,0.68556,19.213,52.05,0.61264,True,True,0.25307,0.6152,0.002038
+D 4-hub,continuous,loaded,0.69003,27.292,72.982,0.648,True,True,0.24224,0.65252,0.0026979
+D 4-hub,continuous,empty,0.69003,21.161,56.586,0.62598,True,True,0.24292,0.62619,0.00095937
+E 3-hub,continuous,loaded,0.75481,35.51,79.357,0.66253,True,True,0.084302,0.65748,0.0035322
+E 3-hub,continuous,empty,0.75481,29.379,65.655,0.63258,True,True,0.095492,0.62863,0.0028421
+A light,snapped,loaded,0.508,17.784,87.743,0.66751,True,True,0.30575,0.67134,0.0032495
+A light,snapped,empty,0.508,11.653,57.493,0.61628,True,True,0.11415,0.61465,0.0031112
+B all-but-one,snapped,loaded,0.6604,21.275,62.11,0.63337,True,True,0.30874,0.63406,0.00083988
+B all-but-one,snapped,empty,0.6604,15.143,44.21,0.58372,True,True,0.22323,0.58833,0.0041479
+C cover-all,snapped,loaded,0.6858,26.784,72.508,0.64837,True,True,0.25169,0.65257,0.0027372
+C cover-all,snapped,empty,0.6858,20.653,55.91,0.62363,True,True,0.25237,0.62444,0.0011355
+D 4-hub,snapped,loaded,0.5842,28.896,107.8,0.69828,True,True,0.33712,0.69191,0.0042523
+D 4-hub,snapped,empty,0.5842,22.765,84.93,0.67032,True,True,0.46141,0.66552,0.0026374
+E 3-hub,snapped,loaded,0.6858,37.722,102.12,0.69134,True,True,0.053659,0.6928,0.0026803
+E 3-hub,snapped,empty,0.6858,31.591,85.522,0.66426,True,True,0.24455,0.66828,0.0020349

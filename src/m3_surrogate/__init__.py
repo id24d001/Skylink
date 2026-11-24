@@ -13,10 +13,11 @@ from .data import (D_MIN, D_MAX, T_MIN, T_MAX,
 from .models import QuadraticSurrogate, RBFSurrogate, GPSurrogate
 from .validation import (loo_predictions, loo_table, repeated_kfold, holdout_errors, shape_checks,
                          freeze_predictions)
+from .fm import FMFunction, FMDomain
 from .adaptive import candidate_grid, trend_std, greedy_select, write_request_csv
 
 __all__ = ["D_MIN", "D_MAX", "T_MIN", "T_MAX",
            "load_oracle", "disk_loading", "make_features", "average_repeats",
            "QuadraticSurrogate", "RBFSurrogate", "GPSurrogate",
            "loo_predictions", "loo_table", "repeated_kfold", "holdout_errors", "shape_checks", "freeze_predictions",
-           "candidate_grid", "trend_std", "greedy_select", "write_request_csv"]
+           "FMFunction", "FMDomain", "candidate_grid", "trend_std", "greedy_select", "write_request_csv"]
