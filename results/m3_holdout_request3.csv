@@ -1,0 +1,5 @@
+,hold-out RMSE,hold-out MAE,max |error|,worst point
+quadratic,0.0875,0.0658,0.1699,R3-5
+RBF thin-plate exact,0.0592,0.0421,0.1018,R3-5
+RBF cubic,0.0513,0.0385,0.0936,R3-6
+GP (ARD + nugget),0.0441,0.0324,0.0870,R3-6

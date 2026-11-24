@@ -1,0 +1,21 @@
+fit,surrogate,design,m_continuous,D_continuous,FM_loaded,FM_empty,m_snapped,D_snapped
+24 runs,RBF cubic (chosen),A light,6.6581,0.52188,0.64953,0.59516,7.0811,0.4826
+24 runs,RBF cubic (chosen),B all-but-one,8.2726,0.69136,0.61956,0.56845,8.4947,0.635
+24 runs,RBF cubic (chosen),C cover-all,10.022,0.68651,0.64206,0.60609,10.732,0.6604
+24 runs,RBF cubic (chosen),D 4-hub,10.793,0.68952,0.64602,0.62042,11.641,0.5842
+24 runs,RBF cubic (chosen),E 3-hub,14.132,0.75752,0.65698,0.62843,15.192,0.6604
+30 runs,RBF cubic (chosen),A light,6.6435,0.53292,0.64724,0.59091,7.0811,0.4826
+30 runs,RBF cubic (chosen),B all-but-one,8.2727,0.69054,0.61972,0.56873,8.4947,0.635
+30 runs,RBF cubic (chosen),C cover-all,9.9869,0.68354,0.64571,0.60666,10.732,0.6604
+30 runs,RBF cubic (chosen),D 4-hub,10.725,0.68536,0.65242,0.62024,11.641,0.5842
+30 runs,RBF cubic (chosen),E 3-hub,14.132,0.74058,0.66204,0.63447,15.192,0.6604
+30 runs,RBF thin-plate,A light,6.6556,0.53299,0.64459,0.59008,7.0811,0.4826
+30 runs,RBF thin-plate,B all-but-one,8.2726,0.68837,0.61992,0.56982,8.4947,0.635
+30 runs,RBF thin-plate,C cover-all,9.9965,0.68264,0.64569,0.60646,10.732,0.6604
+30 runs,RBF thin-plate,D 4-hub,10.731,0.68496,0.65248,0.62004,11.641,0.5842
+30 runs,RBF thin-plate,E 3-hub,14.109,0.75071,0.65926,0.63113,15.192,0.6604
+30 runs,"GP (D, T)",A light,6.6725,0.51566,0.6541,0.59012,7.0811,0.4826
+30 runs,"GP (D, T)",B all-but-one,8.2798,0.6858,0.61662,0.57499,8.4947,0.635
+30 runs,"GP (D, T)",C cover-all,10.041,0.69614,0.63877,0.60193,10.732,0.6604
+30 runs,"GP (D, T)",D 4-hub,10.777,0.70405,0.6452,0.61149,11.607,0.5588
+30 runs,"GP (D, T)",E 3-hub,13.91,0.7301,0.6675,0.64318,15.192,0.6604

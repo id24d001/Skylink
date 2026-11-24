@@ -95,6 +95,23 @@ Format: **[module] decision** — why. Mark AI suggestions as *AI accepted* / *A
     - exploration (0.350, 8.00), (0.465, 40.00) DL 236, and (0.350, 33.24) DL 345, which covers the cliff between DL 225 and 416
     - random (0.439, 26.87)
   - Hold-out protocol applied: all model predictions frozen in `results/m3_request3_frozen_predictions.csv` before sending.
+- **Request 3 result (`data/oracle/result_3.csv`) — final hold-out, scored against the frozen predictions before refitting:**
+  - Hold-out RMSE: GP 0.044, RBF cubic 0.051, thin-plate 0.059, quadratic 0.088.
+  - Surprise 1: the random point (0.439 m, 26.87 N, DL 178) gave FM 0.686, but every model predicted about 0.59. FM stays high in the old DL gap and then drops very steeply between DL 178 and 217. The DL-gap pick suggested for request 2, which was declined, would have found this earlier.
+  - Surprise 2: the cliff point (0.35 m, 33.24 N, DL 345) gave 0.205, so the drop is essentially complete by DL 345.
+- **Final fit, 30 runs / 29 unique points.**
+  - LOO RMSE: thin-plate 0.037, cubic 0.041, GP 0.041, quadratic 0.078.
+  - Repeated 5-fold: thin-plate 0.046 ± 0.011, cubic 0.051 ± 0.010, GP 0.058 ± 0.018.
+  - GP mean z² = 13.9, so its σ is badly over-confident.
+  - The ranking between the RBFs and the GP flips depending on the test (LOO vs 5-fold vs hold-out). The differences are within the 5-fold spread.
+- **Final surrogate kept as cubic RBF** (the user's earlier choice).
+  - No test shows a clear winner.
+  - The decisive check is that M1 does not care. Re-running M1 with thin-plate or GP instead changes the continuous masses by at most 1.6 % and gives the same snapped designs, except D: 11.61 kg with the GP vs 11.64 kg.
+  - The GP is kept only for σ maps. Uncertainty of the cubic RBF is shown as a jackknife band (`jackknife_band`).
+- **M1 optimum shift (with the M2 plate mass):** the real FM raises take-off mass by +4.0 % (A) to +8.2 % (D) relative to FM0 = 0.65, and shrinks rotors (C: 0.779 → 0.684 m). Request 3 moved the optimum by at most 0.6 % relative to the 24-run fit, so the surrogate has converged where M1 uses it.
+- **Noise conclusion:** σ_noise ≈ 0.003 from one repeat, about 15× below the surrogate error, so the oracle is treated as practically deterministic and the models interpolate. Caveat: one pair only.
+- **What a smooth model handles badly:** the cliff at DL above ~180 (FM 0.69 → 0.20). It is handled by spending request-3 points there, by limiting M1 to the convex hull of the samples, and by the fact that the M1 designs sit at DL 40–110, where models agree and the jackknife std is ≤ 0.02. FM in the cliff region is flagged as untrustworthy.
+- Reference only: the GP on (log DL, D) scores 5-fold 0.039 ± 0.025 on 29 points, which is not clearly better any more. Keeping (D, T) is confirmed.
 - Data provenance: `notebooks/M3_oracle_request1_LHS.ipynb` prints 15 points (seed 42) that do **not** match the points in `data/oracle/result_1.csv` (different seed or pyDOE version when the request was actually sent). `result_1.csv` is the source of truth; the notebook is kept as a record of the method only. ⬜ To fix: regenerate or annotate the notebook so its points match result_1.
 
 ## Repo

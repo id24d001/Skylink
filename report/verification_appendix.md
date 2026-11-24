@@ -8,7 +8,7 @@ into `figures/` and `results/`.
 | M0 | Formulation card review; data audit backing the card's numbers | `figures/m0_decision_hierarchy.png`, `results/m0_data_checks.csv`, `results/m0_framing_numbers.csv` | ✅ |
 | M1 | MDA convergence plot; finite-difference gradient check at two step sizes; MDF vs IDF within 1% | `figures/m1_mda_convergence.png`, `figures/m1_gradient_check.png`, `results/m1_gradient_check.csv`, `results/m1_mdf_vs_idf.csv`, `results/m1_hand_check.csv` | ✅ |
 | M2 | MBB-beam benchmark reproduced; no-filter and p = 1 cases explained | `figures/m2_mbb_benchmark.png`, `results/m2_mbb_benchmark.csv`, `results/m2_verification.csv` | ✅ |
-| M3 | LOOCV error table; parity plot; note on oracle noise | `results/m3_loo_table.csv`, `figures/m3_loo_parity.png`, `figures/m3_loo_parity_24pts.png` | 🟡 requests 1+2 |
+| M3 | LOOCV error table; parity plot; note on oracle noise | `results/m3_final_error_table.csv`, `figures/m3_loo_parity_final.png`, noise note below | ✅ final (30 runs) |
 | M4 | Brute force on 4-hub, 8-PHC sub-instance matches solver; LP-relaxation gap; big-M justified | — | ⬜ |
 | M5 | One hub, exponential service, no wind/outage vs Erlang C; days chosen so S45 95% CI < ±3 pp | — | ⬜ |
 | M6 | Weighted-sum points on or behind NSGA-II front (2-objective slice); re-simulated front vs surrogate | — | ⬜ |
@@ -142,3 +142,44 @@ Checks:
 
 ![M1 re-run with surrogate FM](../figures/m1_fm_rerun.png)
 
+### Final verification (30 runs, 29 unique points) — `notebooks/M3_step8_final.ipynb`
+
+![M3 final LOO parity](../figures/m3_loo_parity_final.png)
+
+RMSE in FM units (`results/m3_final_error_table.csv`). The final hold-out is request 3, scored against predictions frozen before it was sent (`results/m3_holdout_request3.csv`):
+
+| model | LOO RMSE | 5-fold RMSE (20 shuffles) | final hold-out RMSE (6 pts) | LOO Q² | mean z² |
+|---|---|---|---|---|---|
+| quadratic | 0.078 | 0.084 ± 0.011 | 0.088 | 0.61 | — |
+| RBF thin-plate | 0.037 | 0.046 ± 0.011 | 0.059 | 0.91 | — |
+| **RBF cubic (used)** | 0.041 | 0.051 ± 0.010 | 0.051 | 0.89 | — |
+| GP (D, T) | 0.041 | 0.058 ± 0.018 | 0.044 | 0.89 | 13.9 |
+
+Final surrogate with uncertainty (cubic RBF, jackknife std): ![M3 final surrogate](../figures/m3_final_surrogate.png)
+
+**Noise note (draft, rewrite in own words).** One repeated point (0.383 m, 25.97 N) returned 0.4683 and 0.4730, so the noise std is about 0.0047/√2 ≈ 0.003. That is roughly 15× smaller than the surrogate errors (RMSE 0.04–0.05), so the oracle is treated as practically deterministic. The models interpolate. The GP's fitted nugget stays near zero, which agrees. Repeated runs are averaged before fitting and before cross-validation. Caveat: this rests on one pair.
+
+**What a smooth model handles badly (draft).** FM falls steeply at high disk loading. At small D it goes from 0.686 (DL 178) to 0.523 (DL 217), 0.471 (DL 225), 0.205 (DL 345) and 0.200 (DL 416).
+- Every model's largest errors sit on this cliff and on the ridge just before it. In the final hold-out, R3-5 (DL 345, FM 0.205) and R3-6 (DL 178, FM 0.686, predicted about 0.59 by all models) were the worst points.
+- The GP is badly over-confident there (mean z² 13.9). The cubic RBF shows a small wiggle along D ≈ 0.46 m between close points.
+- How it was handled:
+  - (1) Two request-3 points were spent on the cliff.
+  - (2) M1 may only use FM inside the convex hull of the oracle points (FMDomain constraints).
+  - (3) The M1 designs sit at DL 40–110, where the jackknife std of the surrogate is below about 0.02 and all models agree.
+  - The cliff region is reported as untrustworthy for design and is not used.
+
+### M1 optimum with the final surrogate (plate mass from M2) — `results/m3_m1_optimum_shift.csv`
+
+| design | m FM0 kg | m 24-run fit kg | m final kg | Δ vs FM0 | Δ vs 24-run | D FM0 → final m |
+|---|---|---|---|---|---|---|
+| A | 6.39 | 6.66 | 6.64 | +4.0 % | −0.2 % | 0.646 → 0.533 |
+| B | 7.71 | 8.27 | 8.27 | +7.3 % | 0.0 % | 0.711 → 0.691 |
+| C | 9.26 | 10.02 | 9.99 | +7.9 % | −0.4 % | 0.779 → 0.684 |
+| D | 9.92 | 10.79 | 10.73 | +8.2 % | −0.6 % | 0.800 → 0.685 |
+| E | 13.18 | 14.13 | 14.13 | +7.3 % | 0.0 % | 0.800 → 0.741 |
+
+The real FM moves the optimum away from FM0: +4 to +8 % take-off mass and smaller rotors (D 0.53–0.74 m instead of 0.65–0.80 m), because FM falls at low disk loading.
+
+The last 6 oracle points moved it by less than 1 %.
+
+Swapping the surrogate (thin-plate or GP instead of cubic RBF) changes the continuous mass by at most 1.6 % (`results/m3_m1_surrogate_sensitivity.csv`). The snapped catalogue designs are identical, except D (11.61 vs 11.64 kg with the GP).

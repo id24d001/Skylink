@@ -115,3 +115,20 @@ def freeze_predictions(models, X_fit, y_fit, D_new, T_new, make_features, path):
         out[name] = m.predict(Xn)
     out.to_csv(path, index=False, float_format="%.5f")
     return out
+
+
+def jackknife_band(model, X, y, X_query):
+    """Uncertainty for a model that has no built-in std (e.g. an RBF): refit n times, each time
+    leaving one point out, and look at how much the prediction at X_query moves.
+
+    jackknife std = sqrt((n-1)/n * sum_i (f_-i - mean)^2). Large where the surface depends on few points.
+    Returns (prediction with all points, jackknife std)."""
+    X = np.asarray(X, dtype=float); y = np.asarray(y, dtype=float)
+    n = len(y)
+    full = copy.deepcopy(model).fit(X, y).predict(X_query)
+    preds = np.empty((n, len(X_query)))
+    for i in range(n):
+        keep = np.arange(n) != i
+        preds[i] = copy.deepcopy(model).fit(X[keep], y[keep]).predict(X_query)
+    sd = np.sqrt((n - 1) / n * ((preds - preds.mean(axis=0))**2).sum(axis=0))
+    return full, sd
