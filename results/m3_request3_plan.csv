@@ -1,0 +1,7 @@
+point,category,D_m,T_N,DL,exploit_score,explore_score,sigma,dist_existing,dist_any,near_M1,why,FM_GP,sd_GP,FM_RBF
+R3-1,exploitation,0.68,26.84,73.9052,0.0942,0.0907,0.0028,0.1242,0.1242,C-loaded,highest exploitation score: close to M1 hover point and still uncertain,0.655,0.0028,0.6509
+R3-2,exploitation,0.575,28.62,110.2159,0.0887,0.1428,0.0045,0.1529,0.1529,D-loaded,highest exploitation score: close to M1 hover point and still uncertain,0.6945,0.0047,0.7005
+R3-3,exploration,0.35,8.0,83.1503,0.0,0.8971,0.0251,0.1333,0.1333,,highest exploration score: largest uncertainty / model disagreement,0.6535,0.0268,0.6018
+R3-4,exploration,0.465,40.0,235.5397,0.0,0.8135,0.026,0.2326,0.2326,,highest exploration score: largest uncertainty / model disagreement,0.5295,0.0293,0.4957
+R3-5,exploration,0.35,33.24,345.4897,0.0,0.6528,0.0157,0.1983,0.1983,,highest exploration score: largest uncertainty / model disagreement,0.2327,0.0182,0.2811
+R3-6,random,0.439,26.87,177.5206,0.0,0.0916,0.0022,0.1155,0.1155,,uniform random (seed 6003): unbiased check of the surrogate,0.5988,0.0037,0.5922

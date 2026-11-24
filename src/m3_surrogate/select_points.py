@@ -41,7 +41,15 @@ SEED = 6002
 
 
 def m1_hover_points(designs):
-    """One row per design and state: design letter, state, D, T, weight."""
+    """One row per design and state: design letter, state, D, T, weight.
+
+    Accepts either the M1 design table (columns design, D, T_hover_loaded, T_hover_empty) or a
+    ready hover-point table (columns design, state, D_m, T_N), e.g. results/m1_fm_hover_points.csv."""
+    if {"state", "D_m", "T_N"} <= set(designs.columns):
+        h = designs[["design", "state", "D_m", "T_N"]].copy()
+        h["design"] = h.design.astype(str).str.split().str[0]
+        h["weight"] = [DESIGN_WEIGHT.get(k, OTHER_WEIGHT) for k in h.design]
+        return h.reset_index(drop=True)
     rows = []
     for _, r in designs.iterrows():
         k = str(r.design).split()[0]
@@ -62,8 +70,10 @@ def min_dist(Xc, Xd):
     return np.min(np.linalg.norm(Xc[:, None, :] - Xd[None, :, :], axis=2), axis=1)
 
 
-def choose_request(df, designs, n_grid=91):
-    """df: oracle data (load_oracle). designs: results/m1_designs.csv as a DataFrame.
+def choose_request(df, designs, n_grid=91, n_exploit=N_EXPLOIT, n_explore=N_EXPLORE, n_random=N_RANDOM,
+                   repeat_pts=REPEAT_PTS, seed=SEED, label="R2"):
+    """df: oracle data, one row per unique (D, T) (use average_repeats first if there are repeats).
+    designs: M1 design table or hover-point table (see m1_hover_points).
     Returns (plan, grid) where grid holds the initial score maps for plotting."""
     X, y = make_features(df.D_m, df.T_N), df.FM.values
     gp = GPSurrogate().fit(X, y)
@@ -102,7 +112,7 @@ def choose_request(df, designs, n_grid=91):
                      "near_M1": near_design[k] if close[k] > 0.05 else "", "why": why})
         X_design = np.vstack([X_design, Xc[k]])
 
-    for category, n, which in (("exploitation", N_EXPLOIT, 1), ("exploration", N_EXPLORE, 2)):
+    for category, n, which in (("exploitation", n_exploit, 1), ("exploration", n_explore, 2)):
         for _ in range(n):
             s = scores(X_design)[which]
             ok = min_dist(Xc, X_design) >= D_MIN
@@ -111,8 +121,8 @@ def choose_request(df, designs, n_grid=91):
                    if which == 1 else "highest exploration score: largest uncertainty / model disagreement")
             add(k, category, why)
 
-    rng = np.random.default_rng(SEED)
-    for _ in range(N_RANDOM):
+    rng = np.random.default_rng(seed)
+    for _ in range(n_random):
         while True:
             D, T = rng.uniform(DLO, DHI), rng.uniform(TLO, THI)
             D, T = round(D, 3), round(T, 2)
@@ -123,9 +133,9 @@ def choose_request(df, designs, n_grid=91):
         Xc = np.vstack([Xc, xq]); close = np.append(close, closeness(xq, hover)[0])
         near_design = np.append(near_design, closeness(xq, hover)[1])
         dis_n = np.append(dis_n, np.abs(gp.predict(xq) - rbf.predict(xq)) / disagree.max())
-        add(len(cand) - 1, "random", f"uniform random (seed {SEED}): unbiased check of the surrogate")
+        add(len(cand) - 1, "random", f"uniform random (seed {seed}): unbiased check of the surrogate")
 
-    for p in REPEAT_PTS:
+    for p in repeat_pts:
         D, T = df.loc[p, "D_m"], df.loc[p, "T_N"]
         xq = make_features(D, T)
         cand.loc[len(cand)] = [D, T, float(disk_loading(D, T))]
@@ -137,7 +147,7 @@ def choose_request(df, designs, n_grid=91):
     plan = pd.DataFrame(rows)
     plan["D_m"] = plan.D_m.round(3); plan["T_N"] = plan.T_N.round(2)
     plan["DL"] = disk_loading(plan.D_m, plan.T_N)
-    plan.index = [f"R2-{i}" for i in range(1, len(plan) + 1)]
+    plan.index = [f"{label}-{i}" for i in range(1, len(plan) + 1)]
     plan.index.name = "point"
     Xp = make_features(plan.D_m, plan.T_N)
     plan["FM_GP"], plan["sd_GP"] = gp.predict(Xp, return_std=True)
@@ -148,7 +158,8 @@ def choose_request(df, designs, n_grid=91):
 CATEGORY_COLORS = {"exploitation": "cyan", "exploration": "orange", "random": "lime", "repeat": "red"}
 
 
-def plot_scores(df, plan, grid, path=None):
+def plot_scores(df, plan, grid, path=None, title="Oracle request 2"):
+    fig_title = title
     """Two panels: exploitation and exploration score maps (before any pick), with request-1 points,
     M1 hover points A-E, the DL gap 151-217 hatched, and the chosen points as numbered stars."""
     import matplotlib.pyplot as plt
@@ -181,19 +192,20 @@ def plot_scores(df, plan, grid, path=None):
         for lbl, r in plan.iterrows():
             c = CATEGORY_COLORS[r.category]
             ax.scatter(r.D_m, r.T_N, marker="*", s=330, c=c, edgecolor="k", zorder=6)
-            ax.annotate(lbl.replace("R2-", ""), (r.D_m, r.T_N), xytext=(6, 5), textcoords="offset points",
+            ax.annotate(lbl.split("-")[-1], (r.D_m, r.T_N), xytext=(6, 5), textcoords="offset points",
                         fontsize=11, fontweight="bold", color=c,
                         path_effects=[pe.withStroke(linewidth=2.5, foreground="k")])
         ax.set_xlim(DLO - 0.005, DHI + 0.005); ax.set_ylim(TLO - 0.5, THI + 0.5)
         ax.set_xlabel("D (m)"); ax.set_title(title, fontsize=11)
     axes[0].set_ylabel("T per rotor (N)")
-    handles = [Line2D([], [], marker="o", ls="", mfc="w", mec="k", label="request 1 (numbered)"),
+    handles = [Line2D([], [], marker="o", ls="", mfc="w", mec="k", label="measured points (numbered)"),
                Line2D([], [], marker="s", ls="", mfc="w", mec="k", label="M1 hover points A–E (loaded/empty)"),
                Patch(facecolor="none", edgecolor="k", hatch="//", label="DL gap 151–217")]
-    handles += [Line2D([], [], marker="*", ls="", mfc=c, mec="k", ms=15, label=f"R2 {k}")
-                for k, c in CATEGORY_COLORS.items()]
+    handles += [Line2D([], [], marker="*", ls="", mfc=c, mec="k", ms=15, label=f"{plan.index[0].split('-')[0]} {k}")
+                for k, c in CATEGORY_COLORS.items() if k in set(plan.category)]
     fig.legend(handles=handles, loc="lower center", ncol=7, fontsize=9, bbox_to_anchor=(0.5, 0.0))
-    fig.suptitle("Oracle request 2: score maps and the chosen points (numbers = R2-n)", fontsize=13)
+    fig.suptitle(f"{fig_title}: score maps and the chosen points (numbers = {plan.index[0].split('-')[0]}-n)",
+                 fontsize=13)
     fig.tight_layout(rect=(0, 0.06, 1, 0.97))
     if path is not None:
         fig.savefig(path, dpi=150)

@@ -60,7 +60,13 @@ Format: **[module] decision** — why. Mark AI suggestions as *AI accepted* / *A
 - **Surrogate-choice check:** the same problem with the GP mean as FM gives masses within 0.6 % of the RBF result, and 20 multistarts converge to one optimum. The move is not an RBF artefact.
 - **Snapped designs (surrogate FM), all feasible:** A 7.25, B 8.68, C 10.92, D 11.78, E 15.38 kg. Snapping chose smaller props (20–27 in) where the surrogate FM is 0.63–0.70. E is lighter than its FM0 snap (15.72 kg): a 27 in prop at disk loading 102 N/m² has FM 0.69. ⬜ Use these as the M4/M6 design set, or keep FM0 (user to decide; recommended: surrogate set).
 - **Request-3 hold-out protocol:** before sending request 3, freeze every model's predictions at the 6 points (`freeze_predictions` → `results/m3_request3_frozen_predictions.csv`). Score them against `result_3.csv` before refitting.
-- ⬜ Request 3 (6 points): user to plan. Candidates: the cliff between DL 225 and 416 (no data); the surrogate-FM design hover points (`results/m1_fm_hover_points.csv`; GP σ there is only 0.001–0.004, so exploitation points mostly confirm); maybe 1 random check point.
+- **Request 3 (last 6 points), user's split: 2 exploitation + 3 exploration + 1 random, no repeat** (noise ≈ 0.003 already measured). Same scoring method as request 2, fitted on 23 unique points. Exploitation targets are the snapped surrogate-based M1 hover points (`results/m1_fm_hover_points.csv`). Random seed 6003. Defence in `report/m3_request3_defence.md`, figure `figures/m3_request3_scores.png`.
+  - Exploitation scores came out small (max 0.094 vs 0.47 in request 2). GP σ at the M1 hover points is ≤ 0.004, so the surrogate is already good where M1 needs it.
+  - Picks:
+    - exploitation (0.680, 26.84) near C-loaded and (0.575, 28.62) near D-loaded
+    - exploration (0.350, 8.00), (0.465, 40.00) DL 236, and (0.350, 33.24) DL 345, which covers the cliff between DL 225 and 416
+    - random (0.439, 26.87)
+  - Hold-out protocol applied: all model predictions frozen in `results/m3_request3_frozen_predictions.csv` before sending.
 - Data provenance: `notebooks/M3_oracle_request1_LHS.ipynb` prints 15 points (seed 42) that do **not** match the points in `data/oracle/result_1.csv` (different seed or pyDOE version when the request was actually sent). `result_1.csv` is the source of truth; the notebook is kept as a record of the method only. ⬜ To fix: regenerate or annotate the notebook so its points match result_1.
 
 ## Repo
