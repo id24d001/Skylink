@@ -44,7 +44,7 @@ GitHub tab → search `id24d001/skylink` (tick "Include private repos" if privat
 | Module | Folder | Status | Verification output |
 |---|---|---|---|
 | M0 Problem framing | `src/m0_framing/` | ⬜ | formulation card |
-| M1 Vehicle MDO | `src/m1_vehicle/` | ⬜ | |
+| M1 Vehicle MDO | `src/m1_vehicle/` | ✅ FM0 = 0.65; 5 snapped designs | `figures/m1_mda_convergence.png`, `figures/m1_gradient_check.png`, `results/m1_mdf_vs_idf.csv`, `results/m1_designs.csv` |
 | M2 Hub plate topology | `src/m2_plate/` | ⬜ | |
 | M3 Rotor surrogate | `src/m3_surrogate/` | 🟡 request 1 fitted, LOOCV done | `results/m3_loo_table.csv`, `figures/m3_loo_parity.png` |
 | M4 Hub network and fleet | `src/m4_network/` | ⬜ | |
@@ -64,7 +64,7 @@ src/
 ├── common/              repo paths and data loaders shared by all modules
 ├── m0_framing/ … m7_decision/
 │   └── run.py           run(ctx) -> dict; its presence plugs the module into run_all.py
-notebooks/               exploration and step-by-step working (M3_*.ipynb so far)
+notebooks/               exploration and step-by-step working (M1_vehicle_MDO, M3_*)
 results/  figures/       written by run_all.py
 report/
 ├── formulation_cards/   M0.md … M7.md (one page each)

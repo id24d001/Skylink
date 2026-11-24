@@ -1,0 +1,33 @@
+point,function,step,scheme,max_rel_err,mda_tol
+baseline optimum,objective m,1.000e-04,forward,2.399e-05,1.000e-12
+baseline optimum,objective m,1.000e-04,central,2.330e-10,1.000e-12
+baseline optimum,objective m,1.000e-06,forward,2.398e-07,1.000e-12
+baseline optimum,objective m,1.000e-06,central,9.687e-10,1.000e-12
+baseline optimum,constraints g,1.000e-04,forward,9.357e-03,1.000e-12
+baseline optimum,constraints g,1.000e-04,central,8.224e-07,1.000e-12
+baseline optimum,constraints g,1.000e-06,forward,9.350e-05,1.000e-12
+baseline optimum,constraints g,1.000e-06,central,1.242e-08,1.000e-12
+random interior point,objective m,1.000e-04,forward,3.260e-05,1.000e-12
+random interior point,objective m,1.000e-04,central,4.256e-10,1.000e-12
+random interior point,objective m,1.000e-06,forward,3.239e-07,1.000e-12
+random interior point,objective m,1.000e-06,central,1.507e-09,1.000e-12
+random interior point,constraints g,1.000e-04,forward,2.455e-04,1.000e-12
+random interior point,constraints g,1.000e-04,central,5.022e-08,1.000e-12
+random interior point,constraints g,1.000e-06,forward,2.455e-06,1.000e-12
+random interior point,constraints g,1.000e-06,central,4.803e-09,1.000e-12
+baseline optimum,objective m,1.000e-04,forward,2.399e-05,1.000e-08
+baseline optimum,objective m,1.000e-04,central,2.250e-10,1.000e-08
+baseline optimum,objective m,1.000e-06,forward,2.379e-07,1.000e-08
+baseline optimum,objective m,1.000e-06,central,1.862e-09,1.000e-08
+baseline optimum,constraints g,1.000e-04,forward,9.357e-03,1.000e-08
+baseline optimum,constraints g,1.000e-04,central,8.224e-07,1.000e-08
+baseline optimum,constraints g,1.000e-06,forward,9.349e-05,1.000e-08
+baseline optimum,constraints g,1.000e-06,central,4.448e-08,1.000e-08
+random interior point,objective m,1.000e-04,forward,3.260e-05,1.000e-08
+random interior point,objective m,1.000e-04,central,4.257e-10,1.000e-08
+random interior point,objective m,1.000e-06,forward,3.272e-07,1.000e-08
+random interior point,objective m,1.000e-06,central,7.459e-10,1.000e-08
+random interior point,constraints g,1.000e-04,forward,2.455e-04,1.000e-08
+random interior point,constraints g,1.000e-04,central,5.022e-08,1.000e-08
+random interior point,constraints g,1.000e-06,forward,2.455e-06,1.000e-08
+random interior point,constraints g,1.000e-06,central,2.610e-09,1.000e-08
