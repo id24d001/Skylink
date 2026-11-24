@@ -47,8 +47,10 @@ WEIGHTS = np.round(np.linspace(0.1, 0.9, 9), 2)
 def budget(ctx):
     fast = bool(ctx.get("fast")) or os.environ.get("SKYLINK_FAST") == "1"
     if fast:
-        return dict(pop=16, gens=6, ws_pop=10, ws_gens=5, resim_max=8, fast=True)
-    return dict(pop=32, gens=25, ws_pop=16, ws_gens=12, resim_max=24, fast=False)
+        return dict(pop=16, gens=6, slice_pop=16, slice_gens=6, ws_pop=10, ws_gens=5, resim_max=8,
+                    fast=True)
+    return dict(pop=32, gens=40, slice_pop=40, slice_gens=60, ws_pop=16, ws_gens=12, resim_max=24,
+                fast=False)
 
 
 def run(ctx):
@@ -112,7 +114,7 @@ def run(ctx):
             F = np.array([[o["cost"] / 1e7, -o["S45"]] for o in outs])
             return F, np.array([max(0, o["cost"] - COST_CAP) / 1e7 for o in outs])
 
-        nsga2(ev2, pD.lo, pD.hi, pD.is_int, pop=B["pop"], gens=B["gens"], seed=12,
+        nsga2(ev2, pD.lo, pD.hi, pD.is_int, pop=B["slice_pop"], gens=B["slice_gens"], seed=12,
                      repair=pD.repair, key=lambda x: pD.config(x))
         # NSGA-II front on the slice = non-dominated (cost, S45) points among every design-D
         # configuration the two NSGA-II runs (3-objective and 2-objective) simulated, frozen
@@ -145,6 +147,37 @@ def run(ctx):
               f"behind the NSGA-II front (tolerance 0.01 normalised); largest lead {ws.S45_ahead_pp.max():.2f} pp of S45")
         fig_ws(sf, ws, FIGURES / "m6_ws_slice.png")
 
+        # ---- 4b. weighted-sum result on the full problem: equal weights on the three objectives,
+        #          each scaled to [0, 1] over the merged front; one GA per design, best kept
+        lo3 = front[["cost_cr", "S45", "road_share"]].min().values
+        hi3 = front[["cost_cr", "S45", "road_share"]].max().values
+        sc3 = np.maximum(hi3 - lo3, 1e-9)
+        ws3_rows = []
+        for i, (d, p) in enumerate(probs.items()):
+            def ev3(X, p=p):
+                outs = ev.run([p.config(x) for x in X])
+                f = [((o["cost"] / 1e7 - lo3[0]) / sc3[0] + (hi3[1] - o["S45"]) / sc3[1]
+                      + (o["road_share"] - lo3[2]) / sc3[2]) / 3 for o in outs]
+                return np.array(f)[:, None], np.array([max(0, o["cost"] - COST_CAP) / 1e7 for o in outs])
+
+            r = nsga2(ev3, p.lo, p.hi, p.is_int, pop=B["ws_pop"], gens=B["ws_gens"], seed=200 + i,
+                      repair=p.repair, key=lambda x, p=p: p.config(x))
+            c = p.config(r["X"][np.argmin(r["F"][:, 0])])
+            o = ev.run([c])[0]
+            dom = ((front.cost_cr <= o["cost"] / 1e7) & (front.S45 >= o["S45"])
+                   & (front.road_share <= o["road_share"])).any()
+            ws3_rows.append(dict(design=d, config=c.label, cost_cr=o["cost"] / 1e7, S45=o["S45"],
+                                 road_share=o["road_share"], P95=o["P95"], ws_value=float(r["F"][:, 0].min()),
+                                 on_or_behind_front=bool(dom)))
+        ws3 = pd.DataFrame(ws3_rows).sort_values("ws_value").reset_index(drop=True)
+        ws3["chosen"] = ws3.index == 0
+        ws3.to_csv(RESULTS / "m6_ws_3obj.csv", index=False, float_format="%.5f")
+        w3 = ws3.iloc[0]
+        print(f"  weighted sum, equal weights, all designs: {w3.config}: {w3.cost_cr:.2f} cr/yr, "
+              f"S45 {w3.S45:.3f}, road {w3.road_share:.3f} "
+              f"({'on or behind' if w3.on_or_behind_front else 'AHEAD of'} the NSGA-II front)")
+        fig_convergence(pd.DataFrame(conv), FIGURES / "m6_convergence.png")
+
         # ---- 5. re-simulation on 365 days, fresh seeds
         base = [(probs[d].config(probs[d].genome()), f"{SHORT[d]} as M4") for d in DESIGNS]
         pDs = probs["D 4-hub"]
@@ -154,6 +187,7 @@ def run(ctx):
         cfg_by_label = {c.label: (c, o) for c, o in ev.records()}
         recs = [cfg_by_label[l] for l in pick.config]
         roles = ["knee" if kk else "front" for kk in pick.knee]
+        base.append((cfg_by_label_all(ev)[w3.config], "weighted sum (equal weights)"))
         for c, role in base:
             recs.append((c, ev.run([c])[0]))
             roles.append(role)
@@ -175,15 +209,19 @@ def run(ctx):
         print(f"  cost hand check vs M4 (hubs, drones, bays, operators): "
               f"{'pass' if hc.passed.all() else 'FAIL'}")
 
-        fig_pareto(arch, front, f2, knee, ws, rs, FIGURES / "m6_pareto.png")
+        fig_pareto(arch, front, f2, knee, ws3, rs, FIGURES / "m6_pareto.png")
         print(f"  {ev.n_sim} simulator runs in total ({time.time() - t0:.0f} s)")
-        return {"m6": dict(front=front, front_2d=f2, knee=knee, resim=rs, archive=arch,
+        return {"m6": dict(front=front, front_2d=f2, knee=knee, resim=rs, archive=arch, ws_3obj=ws3,
                            problem=Problem, days=days, seeds=seeds)}
     finally:
         ev.close()
 
 
 # ---------------------------------------------------------------- helpers
+def cfg_by_label_all(ev):
+    return {c.label: c for c, _ in ev.records()}
+
+
 def archive_frame(recs):
     rows = []
     for c, o in recs:
@@ -239,6 +277,9 @@ def fig_pareto(arch, front, f2, knee, ws, rs, path):
     ax.plot(f2.cost_cr, f2.S45, color=INK, lw=1, alpha=0.6, zorder=2, label="cost-S45 front")
     ax.scatter([knee.cost_cr], [knee.S45], s=260, marker="*", color="#e34948", edgecolor=INK, lw=0.8,
                zorder=5, label=f"knee: {knee.config}")
+    w3 = ws[ws.chosen].iloc[0]
+    ax.scatter([w3.cost_cr], [w3.S45], s=120, marker="D", facecolor="none", edgecolor="#6250d6", lw=1.8,
+               zorder=5, label=f"weighted sum, equal weights: {w3.config}")
     b = rs[rs.role.str.contains("as M4|M5")]
     ax.scatter(b.cost_cr_73, b.S45_73, s=50, marker="x", color=INK, zorder=4, label="M4 sizing / M5 what-if")
     for _, r in b.iterrows():
@@ -257,7 +298,10 @@ def fig_pareto(arch, front, f2, knee, ws, rs, path):
         f = front[front.design == d]
         ax.scatter(f.cost_cr, f.road_share, s=30, marker=MK[d], color=COL[d], edgecolor="white", lw=0.8,
                    label=f"design {SHORT[d]}")
-    ax.scatter([knee.cost_cr], [knee.road_share], s=260, marker="*", color="#e34948", edgecolor=INK, zorder=5)
+    ax.scatter([knee.cost_cr], [knee.road_share], s=260, marker="*", color="#e34948", edgecolor=INK, zorder=5,
+               label="knee")
+    ax.scatter([w3.cost_cr], [w3.road_share], s=120, marker="D", facecolor="none", edgecolor="#6250d6",
+               lw=1.8, zorder=5, label="weighted sum (equal weights)")
     ax.set_xlabel("annual cost (INR crore/yr)")
     ax.set_ylabel("road-fallback share of all orders")
     ax.set_title("(b) cost vs road share (front points)", fontsize=10)
@@ -317,7 +361,7 @@ def fig_resim(rs, rho, path):
                     color=col, ecolor=col, elinewidth=0.6, capsize=2, label="knee" if role == "knee" else "front points")
     r = rs[~rs.role.isin(["front", "knee"])]
     ax.errorbar(r.S45_73, r.S45_365, xerr=r.S45_73_ci, yerr=r.S45_365_ci, fmt="x", ms=7, color=INK,
-                elinewidth=0.6, capsize=2, label="M4 sizing / M5 what-if")
+                elinewidth=0.6, capsize=2, label="M4 sizing, M5 what-if, weighted sum")
     ax.axhline(TARGET, color="#e34948", lw=0.8, ls=":")
     ax.text(lo + 0.002, TARGET + 0.002, "M0 target 0.90", fontsize=7, color="#52514e")
     ax.set_xlim(lo, max(hi, TARGET + 0.01))
@@ -329,6 +373,25 @@ def fig_resim(rs, rho, path):
                  fontsize=10)
     ax.legend(fontsize=7, loc="upper left")
     _style(ax)
+    fig.tight_layout()
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+
+
+def fig_convergence(conv, path):
+    fig, axs = plt.subplots(1, 3, figsize=(13, 3.6))
+    for d in DESIGNS:
+        c = conv[conv.design == d]
+        for ax, col, lab in zip(axs, ("best_cost", "best_S45", "best_road"),
+                                ("lowest cost in population (INR cr/yr)", "highest S45 in population",
+                                 "lowest road share in population")):
+            ax.plot(c.gen, c[col], color=COL[d], marker=MK[d], ms=3, lw=1.5, label=f"design {SHORT[d]}")
+            ax.set_xlabel("generation")
+            ax.set_title(lab, fontsize=9)
+    for ax in axs:
+        _style(ax)
+    axs[0].legend(fontsize=7)
+    fig.suptitle("NSGA-II convergence per design (73 CRN days): extremes of the population", fontsize=10)
     fig.tight_layout()
     fig.savefig(path, dpi=150)
     plt.close(fig)

@@ -1,4 +1,4 @@
 design,simulated,on_merged_front,max_S45,cost_at_max_S45,min_cost,min_road_share,reaches_090
-C cover-all,817,37,0.89305,2.57370,2.28917,0.05706,False
-D 4-hub,813,12,0.89604,2.34599,2.12350,0.07091,False
-E 3-hub,798,80,0.90167,2.41885,2.12494,0.06246,True
+C cover-all,1286,51,0.89305,2.57370,2.26376,0.05692,False
+D 4-hub,1273,25,0.89604,2.56347,2.12202,0.07084,False
+E 3-hub,1236,102,0.90167,2.41885,2.12412,0.06239,True
