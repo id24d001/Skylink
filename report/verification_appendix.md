@@ -10,7 +10,7 @@ into `figures/` and `results/`.
 | M2 | MBB-beam benchmark reproduced; no-filter and p = 1 cases explained | `figures/m2_mbb_benchmark.png`, `results/m2_mbb_benchmark.csv`, `results/m2_verification.csv` | ✅ |
 | M3 | LOOCV error table; parity plot; note on oracle noise | `results/m3_final_error_table.csv`, `figures/m3_loo_parity_final.png`, noise note below | ✅ final (30 runs) |
 | M4 | Brute force on 4-hub, 8-PHC sub-instance matches solver; LP-relaxation gap; big-M justified | `results/m4_bruteforce.csv`, `results/m4_lp_gap.csv`, `results/m4_bigm_check.csv`, `results/m4_hand_check.csv`, `figures/m4_networks.png` | ✅ |
-| M5 | One hub, exponential service, no wind/outage vs Erlang C; days chosen so S45 95% CI < ±3 pp | — | ⬜ |
+| M5 | One hub, exponential service, no wind/outage vs Erlang C; days chosen so S45 95% CI < ±3 pp | `figures/m5_mmc_check.png`, `results/m5_mmc_check.csv`, `figures/m5_s45_days.png`, `results/m5_days_ci.csv`, `results/m5_hand_check.csv`, `results/m5_rule_checks.csv` | ✅ |
 | M6 | Weighted-sum points on or behind NSGA-II front (2-objective slice); re-simulated front vs surrogate | — | ⬜ |
 | M7 | Robustness / reliability / sensitivity tables | — | ⬜ |
 
@@ -242,3 +242,65 @@ Numbers above are from the full `python run_all.py` chain (M1 designs passed in 
 
 ![M4 networks per design](../figures/m4_networks.png)
 ![M4 annual cost vs design](../figures/m4_cost_vs_design.png)
+
+## M5 — Discrete-event simulator
+
+**Erlang C check** (`results/m5_mmc_check.csv`). The brief's reduction is one hub, exponential drone time, no wind and no outage. The simulator also turns off batteries, the road rule and the reserve, and uses one class. The drone dispatch and queue code is the same as in the full model. The mean drone time is 36.7 min (M4's mean at H2). Each case uses 150,000 orders (450,000 at ρ = 0.9). The first 2 % are discarded, and the CI comes from 20 batch means.
+
+| c | ρ | Wq Erlang C (min) | Wq simulated (min) | 95 % CI | Rel. error | P(wait) C / sim |
+|---|---|---|---|---|---|---|
+| 1 | 0.5 | 36.65 | 36.72 | ±1.32 | +0.2 % | 0.500 / 0.499 |
+| 1 | 0.7 | 85.52 | 84.52 | ±3.29 | −1.2 % | 0.700 / 0.698 |
+| 2 | 0.5 | 12.22 | 12.13 | ±0.41 | −0.7 % | 0.333 / 0.334 |
+| 2 | 0.7 | 35.21 | 36.90 | ±2.05 | +4.8 % | 0.576 / 0.588 |
+| 2 | 0.9 | 156.25 | 154.40 | ±12.48 | −1.2 % | 0.853 / 0.856 |
+| 3 | 0.5 | 5.79 | 5.83 | ±0.29 | +0.7 % | 0.237 / 0.240 |
+| 3 | 0.7 | 20.05 | 20.12 | ±1.16 | +0.3 % | 0.492 / 0.493 |
+| 3 | 0.9 | 99.82 | 105.58 | ±6.77 | +5.8 % | 0.817 / 0.825 |
+
+All 8 formula values lie inside the simulator's 95 % CI. The largest errors are at high ρ, where waits are long and strongly correlated. An earlier run with 60,000 orders missed the CI at c = 1, ρ = 0.5 by 0.5 min (−5.6 %, CI ±1.5). That is the about 1-in-20 miss a 95 % CI allows, so the run length was raised, not the seed changed.
+
+![M5 Erlang C check](../figures/m5_mmc_check.png)
+
+**How many days** (`results/m5_days_ci.csv`, `figures/m5_s45_days.png`).
+- Days are drawn at random from the 365 wind days, each with its own demand stream.
+- A 30-day pilot gave a day-to-day SD of 0.085, which predicts 34 days.
+- The rule n = ⌈(t₀.₉₇₅·s/0.03)²⌉ was re-applied after each step: 30 → 34 → 39 → 42 → 60 days. The SD grew as monsoon days entered the sample. At 60 days, D's half-width was ±0.027.
+- The same days are used for every configuration (common random numbers). E's CI was ±0.033 at 60 days, so all configurations were extended to 73 days. Every CI is then ≤ ±0.028.
+- A day, not a long run, is the unit because the brief asks for "a day of operations" and the day has a hard 24:00 cut. Days are independent, so the t-interval on daily S45 is valid without batching.
+
+![M5 days and S45 CI](../figures/m5_s45_days.png)
+
+**Event-logic checks** (`results/m5_hand_check.csv`, `results/m5_rule_checks.csv`).
+- *Hand-timed sortie:* design D, 10 km, calm air, one drone, no spare pack. The by-hand and simulator values agree to < 1e-9: delivery 14.01 min, energy 354.8 Wh, grid 394.3 Wh, drone busy 45.79 min including a 15.77 min wait for its own pack.
+- *Rule checks (9/9 pass):*
+  - The reserve holds the last drone from routine work, and an emergency gets it at once.
+  - There were 0 take-offs in gust-grounded hours, over 1,582 take-offs on 26 days with grounding.
+  - In the outage, at most 2 bays charge (4 before 14:00), and genset energy is ≤ 3 kW × 3 h.
+  - Every order ends delivered, by road or by hand-over.
+  - The same day and seed give the same result.
+
+**Results on 73 days** (`results/m5_kpis.csv`, `results/m5_road_causes.csv`, `figures/m5_results.png`):
+
+| Configuration | S45 (95 % CI) | P95 em. (min) | Util. | Road, all / em. | kWh/day grid + genset |
+|---|---|---|---|---|---|
+| D as M4 (8 drones, 4 bays, 0 spares) | 0.851 ± 0.025 | 150 | 0.46 | 45 % / 14.5 % | 42 + 3.9 |
+| C as M4 | 0.814 ± 0.023 | 150 | 0.45 | 42 % / 17.8 % | 36 + 3.3 |
+| E as M4 | 0.880 ± 0.028 | 150 | 0.50 | 48 % / 11.8 % | 62 + 5.5 |
+| D + 1 spare pack per drone | 0.882 ± 0.026 | 150 | 0.41 | 26 % / 11.5 % | 58 + 5.7 |
+| D, unlimited fleet (wind ceiling) | 0.896 ± 0.025 | 150 | 0.09 | 7 % / 10.3 % | 73 + 10.1 |
+
+- **Why emergencies miss** (D as M4): 3.6 % gust grounding, 6.8 % out of range in that hour's headwind, 4.1 % no drone or charged pack, 0.3 % flown but late.
+- **Ceiling.** With an unlimited fleet over all 365 days (`results/m5_wind_ceiling_year.csv`), S45 is 0.88 for C, 0.88 for D and 0.89 for E. Wind alone keeps every M4 network below the 0.90 target.
+- **P95 = 150 min** (30 min wait + 120 min road) in every case, because more than 5 % of emergencies go by road. P95 only moves once the road share of emergencies falls below 5 %.
+- **The binding resource is not drone time**, since utilisation is only 0.46 against M4's 70 % cap:
+  - with no spares, a drone waits for its own pack (H2 drones wait 814 min a day in total);
+  - the 25 % reserve idles a drone at three hubs;
+  - routine orders to far PHCs wait out windy hours, so 45 % of all orders go by road at 24:00.
+
+![M5 results](../figures/m5_results.png)
+
+**Live view.** `figures/m5_live_day.gif` animates day 164, a Wednesday with gusts grounding 14–17 h during the grid outage. It shows every drone on its path around the no-fly zones, the queues at each hub, idle drones, drones waiting for a pack, bays charging and spare packs. The title shows the clock, wind, grounding, outage and running S45. A still is in `figures/m5_live_day_still.png`.
+
+![M5 live view still](../figures/m5_live_day_still.png)
+

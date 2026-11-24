@@ -1,0 +1,10 @@
+check,value,status
+reserve: 2nd routine order waits while 1 drone is held back (dispatch min),22.00900900900901,ok
+reserve: emergency at t=1 takes the held-back drone at once (wait min),0.0,ok
+"no take-off in a grounded hour (11 days with grounding, 847 take-offs)",0.0,ok
+outage: max bays charging 14:00-17:00 (genset 3 kW / 1.5 kW),2.0,ok
+outage: max bays charging before 14:00 (all 4 usable),3.0,ok
+outage: genset energy <= 3 kW x 3 h = 9 kWh,9.0,ok
+"conservation: every order delivered by drone, hand-over or road",0.0,ok
+conservation on 10 real days: orders without an outcome,0.0,ok
+"same day and seed give the same S45 (reproducible, CRN for M6)",0.8571428571428571,ok
