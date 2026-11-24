@@ -1,11 +1,11 @@
-design,emergency_road_cap,assignments,feasible,brute_force_cost,milp_cost,rel_diff,same_assignment,brute_force_assignment,milp_assignment
-A light,0.05,48,0,inf,inf,0.00,True,,
-A light,1.00,48,48,15793927.96,15793927.96,0.00,True,road road road road road H3 H3 road,road road road road road H3 H3 road
-B all-but-one,0.05,432,0,inf,inf,0.00,True,,
-B all-but-one,1.00,432,432,11610208.58,11610208.58,0.00,True,H1 H1 H1 H1 road H3 H3 road,H1 H1 H1 H1 road H3 H3 road
-C cover-all,0.05,2916,64,8911185.72,8911185.72,0.00,True,H1 H1 H1 H1 H1 H3 H3 H3,H1 H1 H1 H1 H1 H3 H3 H3
-C cover-all,1.00,2916,2916,8911185.72,8911185.72,0.00,True,H1 H1 H1 H1 H1 H3 H3 H3,H1 H1 H1 H1 H1 H3 H3 H3
-D 4-hub,0.05,3888,96,8731918.19,8731918.19,0.00,True,H1 H1 H1 H1 H3 H3 H3 H3,H1 H1 H1 H1 H3 H3 H3 H3
-D 4-hub,1.00,3888,3888,8731918.19,8731918.19,0.00,True,H1 H1 H1 H1 H3 H3 H3 H3,H1 H1 H1 H1 H3 H3 H3 H3
-E 3-hub,0.05,5832,192,9348159.73,9348159.73,0.00,True,H1 H1 H1 H1 H3 H3 H3 H3,H1 H1 H1 H1 H3 H3 H3 H3
-E 3-hub,1.00,5832,5832,9348159.73,9348159.73,0.00,True,H1 H1 H1 H1 H3 H3 H3 H3,H1 H1 H1 H1 H3 H3 H3 H3
+design,road_whatif,assignments,brute_force_cost,milp_cost,rel_diff,same_assignment,brute_force_assignment,milp_assignment
+A light,False,0,inf,inf,0.00,True,,
+A light,True,2,18011524.32,18011524.32,0.00,True,H1 road H3 P09 P09 H0 road road,H1 road H3 P09 P09 H0 road road
+B all-but-one,False,24,8795890.85,8795890.85,0.00,True,H1 H3 H3 H3 H0 H0 H0 H1,H1 H3 H3 H3 H0 H0 H0 H1
+B all-but-one,True,24,8795890.85,8795890.85,0.00,True,H1 H3 H3 H3 H0 H0 H0 H1,H1 H3 H3 H3 H0 H0 H0 H1
+C cover-all,False,432,7039945.25,7039945.25,0.00,True,H1 P09 P09 P09 P09 P09 H1 P09,H1 P09 P09 P09 P09 P09 H1 P09
+C cover-all,True,432,7039945.25,7039945.25,0.00,True,H1 P09 P09 P09 P09 P09 H1 P09,H1 P09 P09 P09 P09 P09 H1 P09
+D 4-hub,False,432,7301583.19,7301583.19,0.00,True,H1 H1 P09 P09 P09 P09 H1 P09,H1 H1 P09 P09 P09 P09 H1 P09
+D 4-hub,True,432,7301583.19,7301583.19,0.00,True,H1 H1 P09 P09 P09 P09 H1 P09,H1 H1 P09 P09 P09 P09 H1 P09
+E 3-hub,False,2916,8041895.38,8041895.38,0.00,True,H3 H3 H3 H3 H3 H0 H0 H3,H3 H3 H3 H3 H3 H0 H0 H3
+E 3-hub,True,2916,8041895.38,8041895.38,0.00,True,H3 H3 H3 H3 H3 H0 H0 H3,H3 H3 H3 H3 H3 H0 H0 H3

@@ -116,20 +116,27 @@ Format: **[module] decision** — why. Mark AI suggestions as *AI accepted* / *A
 
 ## M4 — Hub network and fleet
 
-- **Design set: the surrogate-FM designs** (`m1_fm_designs.csv`, after M2), not the FM0 = 0.65 set. The FM0 designs fall 1–2 km short of their radius with the real FM. *AI suggestion accepted; confirmed by the user.*
-- **Reach is checked at a 6.4 m/s headwind** (P90 of the hourly mean wind in flyable hours), using the brief's model R(1 − w²/V²). This is where M1 said wind would be applied. The alternative was the median, 3.8 m/s. At 6.4 m/s the radii shrink to 8.2 / 11.9 / 15.7 / 17.4 / 21.6 km (A–E). Flight time uses the same wind. *AI suggestion accepted; confirmed by the user.*
-- **Road allowed for PHCs out of reach, with a 5 % emergency guard.** PHCs sent by road may carry at most 5 % of daily emergencies (1.37 of 27.36 a day), which keeps S45 ≥ 90 % within reach for M5. Forcing every PHC onto drones would leave only design E feasible. *AI suggestion accepted; confirmed by the user.*
-  - ⚠️ This relaxes M0's "coverage is hard: 24 of 24 PHCs by drone" for designs C and D (P17 by road, 4.8 % of emergencies). It does not change the answer: the cheapest network, design E, flies all 24 PHCs. ⬜ User to decide: keep the M0 hard-coverage rule, which makes C and D what-if cases, or update the M0 card to the 5 % guard.
-- **Fleets sized hour by hour (24 capacity rows per hub), not on the daily average.** The 10–11 h peak binds, and the daily average would under-size fleets about 3×. *AI suggestion accepted; confirmed by the user.*
-- **70 % utilisation applied to flyable time:** capacity = 0.70 × 60 min × 0.945 (share of hours with gust < 14 m/s) per drone-hour. The same 70 % cap is applied to bay energy.
-- **Orders placed in grounded hours are costed as road trips** (5–6 % of orders, by class and hour). This keeps road-fallback cost in the objective, as the brief asks, even for drone-served PHCs.
-- **Energy price blends grid and genset:** genset ₹28/kWh for the share of orders in the Mon/Wed/Fri 14–17 h outage, ₹9 otherwise. Battery wear is ₹22/Wh ÷ 500 cycles per Wh cycled.
-- **Busy time per trip = out-and-back flight + 10 min on the ground** (3 load/take-off + 1 drop + 6 swap). The 1 min hover at each end is assumed to fall inside these ground times. Lab pick-ups are the same sortie in reverse.
-- **n_j ≥ y_j added:** an open hub has at least one drone. Without it, P09 could open as a "hub" for itself alone with zero drones.
-- **Solver: scipy.optimize.milp (HiGHS)** instead of PuLP or OR-Tools. SciPy is already a dependency, the model is 248 variables, and every design solves to proven optimality in under 1 s.
-- **Brute-force sub-instance:** hubs H1, H3, H5, P09 and PHCs P01–P08, the west side, where reach and road choices both matter. Run for every design with the guard on and off. It enumerates assignments rather than (y, x) pairs, opening only the hubs used, because opening an unused hub only adds cost.
-- **Outage bay limit (2 bays on a 3 kW genset) not modelled in the MILP.** It is a minute-by-minute effect, left to M5/M6 (spare batteries).
-- **Result:** E is cheapest at ₹2.57 crore a year (5 hubs H1 H2 H4 H5 P09, 17 drones, 13 bays, no road PHCs). D costs ₹2.65 crore and C ₹2.84 crore, each with P17 by road. A and B fail the guard. All are below the ₹5.57 crore all-road cap. The heavier E drone (+₹1.6 lakh capex each) is paid back by flying P17 and by needing fewer drones.
+Re-checked against the brief's M4 rules at the user's request. The first version (6.4 m/s design wind, 5 % road guard, peak-hour sizing, 70 % cap on bays) went beyond the brief and was replaced. The rejected items are kept below.
+
+- **Design set: the surrogate-FM designs** (`m1_fm_designs.csv`, post-M2). The brief's M3 says "Re-run M1 with the surrogate FM", and the FM0 designs fall 1–2 km short with the real FM. *AI suggestion accepted; confirmed by the user.*
+- **Every PHC must be served by a hub (Σ_j x_ij = 1).** The brief's variables have no road option for a PHC, its first line promises delivery to every PHC, and M0 made 24/24 coverage hard. Designs that cannot reach a PHC (A: 6 PHCs; B: P17) are infeasible. They are priced only in a what-if that sends just the unreachable PHCs by road, as M0 planned. *AI rejected (by the user):* the earlier "road allowed if ≤ 5 % of emergencies" guard. It was not in the brief and contradicted M0.
+- **Reach = the still-air M1 radius with reserve: L_ij ≤ R.** The brief says "within your M1 range with reserve", and eq. (5) defines R in still air with the 15 % reserve in E_use. *AI rejected (by the user):* shrinking R for a 6.4 m/s P90 headwind. It was not in the M4 rule, and the M1 log had already rejected wind sizing. Wind risk is tested in M5 (hourly wind) and M7 (calm, typical, worst monsoon week). Note: the average-wind range loss (1 − 1/k, 5–9 %) is inside the 15 % reserve.
+- **Capacity on mean daily demand: busy min/day ≤ 0.70 × 1440 × n_j × flyable share.** The brief says "at no more than 70 % utilization", and M5 says "The MILP uses averages". Queueing, the 10–11 h peak and waits over 30 min are M5's job, and M6 then tunes drones and bays. *AI rejected (by the user):* sizing every hour for the peak. It was not in the brief and gave 17–19 drones instead of 8–9.
+- **Flyable share (0.945) kept in the capacity.** costs.yaml says no take-offs in an hour with gust ≥ 14 m/s, so a drone's usable time is the flyable hours.
+- **Flight time and energy use the brief's headwind model at average wind.** "Use this for both energy and time." The factor V²/(V²−w²) is averaged over flyable hours (mean wind 4.0 m/s, factor 1.05–1.10 by design).
+- **Busy time per sortie = flight + 2 min hover (eq. 5: 60 s at each end) + 10 min ground** (3 load/take-off + 1 drop + 6 swap/turnaround). The earlier version wrongly left out the hover.
+- **Road fallback cost = emergencies placed in gust-grounded hours** (6.1 % of emergencies). They wait more than 30 min, and costs.yaml sends them by road. Routine ("same day") and lab orders wait for the next flyable hour and are still flown. The earlier version sent all classes by road, which over-counted.
+- **Bays: no 70 % cap**, because the brief caps only drone time. Bays must recharge each day's sorties, with the outage rule from costs.yaml: a 3 kW genset runs only 2 × 1.5 kW bays, for 3 h × 3/7 = 1.29 h a day on average. Written as two linear constraints (24·b ≥ need, and (24 − 1.29)·b + 2 × 1.29 ≥ need).
+- **Battery packs costed at one cycle per sortie** (₹22/Wh × E ÷ 500). Every sortie ends in a swap and a recharge. This counts under "drones", as packs come with the drone. The earlier version counted partial cycles by energy.
+- **Energy price:** ₹28/kWh genset for the outage share of hours (1.29/24), ₹9/kWh otherwise.
+- **o_j (operators per shift) and n_j ≥ y_j added.** o_j linearises "1 operator per 4 drones per shift, at least 1 per open hub" (costs.yaml). n_j ≥ y_j says a hub has at least one drone.
+- **Solver: scipy.optimize.milp (HiGHS).** SciPy is already a dependency, and each design solves to proven optimality in under 1 s.
+- **Brute-force sub-instance:** H0, H1, H3, P09 × P04–P08, P10, P22, P23, chosen because these assignments are contested (up to 2,916 of them). The brute force enumerates assignments, not (y, x) pairs, since opening an unused hub only adds cost.
+- **Result:**
+  - **D is cheapest at ₹1.69 crore a year**: 4 hubs (H1 H2 H6 P09, the 4-hub set M1 sized it for), 8 drones, 4 bays.
+  - E costs ₹1.76 crore (3 hubs H1 H2 H4, as M1 intended). C costs ₹1.83 crore (5 hubs). A and B are infeasible (what-ifs ₹3.73 and ₹2.21 crore).
+  - E saves a hub and 2 operator posts but pays for heavier drones and bigger packs. All are far below the ₹5.57 crore all-road cap.
+  - The 8 drones are a floor from averages. M5/M6 will add drones and spares for the S45 target.
 
 ## Repo
 - One script `run_all.py` runs M0→M7 in order; a module joins the chain once it has `src/<module>/run.py` with `run(ctx)`. Unimplemented modules are skipped, so the chain always runs.
