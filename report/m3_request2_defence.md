@@ -1,4 +1,4 @@
-# M3 — Oracle request 2: points and defence (draft, rewrite in your own words)
+# M3 — Oracle request 2: points and defence
 
 File: `data/oracle/request_2.csv` (columns `student_id,D_m,T_N`; replace `ROLL_NUMBER` before sending).
 Email subject: `ED6002 ORACLE <roll number> 2`.

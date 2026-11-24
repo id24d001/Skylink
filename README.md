@@ -1,93 +1,92 @@
 # SkyLink: Designing a Medical Drone Delivery Network (ED6002)
 
-Course project in eight modules (M0–M7). Each module's output feeds the next, and one
-script, `run_all.py`, runs the whole chain.
+Repository: <https://github.com/id24d001/Skylink>
 
-## Install
+SkyLink designs a drone network that delivers blood, antivenom, routine medicines and lab samples
+to the 24 primary health centres (PHCs) of Kaveripuram district. The project runs in eight modules
+(M0–M7), each feeding the next: the vehicle is sized (M1) with a topology-optimised hub plate (M2)
+and a rotor surrogate built from 30 oracle runs (M3); hubs and fleet are placed by a MILP (M4);
+a discrete-event simulator (M5) tests them against a year of hourly wind; NSGA-II searches fleet
+and policy on that simulator (M6); and M7 stress-tests the finalists and makes the recommendation.
 
-```bash
-git clone https://github.com/id24d001/skylink.git
-cd skylink
-python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-```
+**Recommendation (M7):** design E with three hubs (H1, H2, H4), 11 drones, 14 spare packs,
+9 charging bays and one drone per hub reserved for emergencies: ₹2.25 crore a year (40 % of
+all-road delivery) with 88.9 % of emergencies delivered within 45 minutes over a typical year.
+
+## How to run
 
 Python 3.10 or newer.
 
-## Run
-
 ```bash
-python run_all.py            # every implemented module, M0 -> M7
-python run_all.py --only m3  # just one (or several) modules
-python run_all.py --fast     # quick smoke run (small M6 and M7 budgets)
+git clone https://github.com/id24d001/Skylink.git
+cd Skylink
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+
+python run_all.py            # the whole chain, M0 -> M7 (about 52 min on 4 cores)
+python run_all.py --fast     # quick end-to-end check with small M6/M7 budgets (about 10 min)
+python run_all.py --only m3  # one or more modules, e.g. --only m4 m5
 ```
 
-Outputs go to `results/` (tables, CSV/JSON) and `figures/` (verification plots).
-The full chain takes about 52 minutes on 4 cores; M6 (about 40 min, 8,500 simulated configurations), M7 (about 7.5 min, 75,000 simulated days), M2 (about 3 min) and M5 (about 1.5 min) are most of that. `python run_all.py --fast` runs M6 and M7 with small budgets (about 10 min) for a quick end-to-end check; its numbers are not the reported ones. The DHO memo PDF is built separately with `python src/m7_decision/memo_pdf.py` (needs pandoc and Chrome/Chromium). For M2 on a 1 mm mesh instead of the
-default 2 mm one, run `SKYLINK_M2_MESH=fine python run_all.py --only m1 m2` (about 30 minutes; it gave the same ratios within 2 % at vf 0.20 and 0.25).
-Running M2 also re-runs M1 with the new plate mass, so M1's files in `results/` are post-M2.
-Modules that are not implemented yet are skipped with a note, so the script always runs end to end.
+One script, `run_all.py`, runs every module in order and writes all tables to `results/` and
+all figures to `figures/`. The reported numbers come from the full run; `--fast` checks that the
+chain runs but its M6/M7 numbers are not the reported ones. Most of the full run is M6 (about
+40 min, 8,500 simulated configurations), M7 (about 7.5 min, 75,000 simulated days), M2 (about
+3 min) and M5 (about 1.5 min). Running M2 re-runs M1 with the optimised plate mass, so M1's files
+in `results/` are post-M2.
 
-### Google Colab
+Optional extras, not needed by `run_all.py`:
 
-```python
-!git clone https://github.com/id24d001/skylink.git   # private repo: see note below
-%cd skylink
-!pip install -q -r requirements.txt
-!python run_all.py
-```
+- `python src/m7_decision/memo_pdf.py` rebuilds `report/decision_memo.pdf` (needs pandoc and Chrome/Chromium).
+- `SKYLINK_M2_MESH=fine python run_all.py --only m1 m2` runs M2 on a 1 mm mesh instead of 2 mm (about 30 min).
 
-If the repo is private, Colab needs a GitHub personal access token (fine-grained, read-only, this
-repo only): `!git clone https://<TOKEN>@github.com/id24d001/skylink.git`. Keep the token in Colab
-Secrets (key icon), not in the notebook. To open a notebook directly: Colab → File → Open notebook →
-GitHub tab → search `id24d001/skylink` (tick "Include private repos" if private). Notebooks find
-`src/` by walking up to the repo root, so run them from inside the cloned folder.
+On Google Colab: `!git clone https://github.com/id24d001/Skylink.git`, `%cd Skylink`,
+`!pip install -q -r requirements.txt`, `!python run_all.py --fast`.
 
-## Module status
+## Module map
 
-| Module | Folder | Status | Verification output |
+| Module | Code | What it decides | Verification (in `results/`, `figures/`) |
 |---|---|---|---|
-| M0 Problem framing | `src/m0_framing/` | ✅ data audit, card drafted | `figures/m0_decision_hierarchy.png`, `results/m0_data_checks.csv` |
-| M1 Vehicle MDO | `src/m1_vehicle/` | ✅ FM0 = 0.65; 5 snapped designs | `figures/m1_mda_convergence.png`, `figures/m1_gradient_check.png`, `results/m1_mdf_vs_idf.csv`, `results/m1_designs.csv` |
-| M2 Hub plate topology | `src/m2_plate/` | ✅ plate-bending SIMP, density filter; vf 0.32 → 108.7 g cut part, 2.31× solid compliance, ≥ 6 mm members; M1 re-run with it | `figures/m2_mbb_benchmark.png`, `results/m2_verification.csv`, `figures/m2_compliance_vs_mass.png`, `figures/m2_outline.png`, `results/m2_plate_outline.dxf`, `results/m2_m1_feedback.csv` |
-| M3 Rotor surrogate | `src/m3_surrogate/` | ✅ 30 runs fitted and verified (LOO, 5-fold, hold-out); cubic RBF; M1 re-run with it | `results/m3_loo_table.csv`, `figures/m3_loo_parity.png`, `results/m1_fm_comparison.csv`, `figures/m1_fm_rerun.png` |
-| M4 Hub network and fleet | `src/m4_network/` | ✅ MILP (HiGHS) per design, brief's rules (every PHC served, still-air reach with reserve, 70 % on mean demand); D cheapest ₹1.69 cr/yr (4 hubs, 8 drones); A, B infeasible; brute force matches | `results/m4_cost_vs_design.csv`, `results/m4_bruteforce.csv`, `results/m4_lp_gap.csv`, `figures/m4_networks.png` |
-| M5 Discrete-event simulator | `src/m5_simulation/` | ✅ SimPy day simulator on the M4 networks; Erlang C check 8/8, 73 days for ±3 pp; D as M4: S45 0.851 ± 0.025, wind ceiling 0.88–0.89; live view GIF | `figures/m5_mmc_check.png`, `results/m5_mmc_check.csv`, `results/m5_days_ci.csv`, `results/m5_kpis.csv`, `figures/m5_results.png`, `figures/m5_live_day.gif` |
-| M6 Multi-objective optimisation | `src/m6_moo/` | ✅ NSGA-II with common random numbers on C, D, E (8,546 simulated configurations, 178-point front); knee = E, 11 drones, 14 spares, 9 bays, 1 reserve per hub: ₹2.25 cr/yr, S45 0.889 ± 0.015 on 365 days; 0.90 not reachable; weighted sum 8/9 on or behind the front (9th ahead by one emergency order), equal-weight weighted sum next to the knee | `results/m6_zdt1_check.csv`, `figures/m6_ws_slice.png`, `results/m6_ws_slice.csv`, `results/m6_ws_3obj.csv`, `figures/m6_resim.png`, `results/m6_resim_365.csv`, `results/m6_cost_hand_check.csv`, `figures/m6_pareto.png`, `figures/m6_convergence.png` |
-| M7 Decision and defense | `src/m7_decision/` | ✅ top 3 from M6 under calm / typical / worst-monsoon wind (knee S45 0.97 / 0.889 / 0.53); Monte Carlo P(30-day S45 ≥ 0.90) = 0.29 [0.25, 0.33] for the knee; battery +20 % (same drone) → S45 0.944, −₹0.11 cr; drone price −30 % → −₹0.16 cr; demand +15 %/yr: S45 holds, re-tuned cost ₹2.5→4.2 cr by year 5; decision = knee, minimax regret agrees for λ ≥ ₹0.053 cr/pp; two-page DHO memo (`report/decision_memo.md` / `.pdf`) and Pareto pitch (`report/pareto_pitch.md`) | `results/m7_verification.csv`, `results/m7_robustness.csv`, `figures/m7_robustness.png`, `results/m7_reliability.csv`, `figures/m7_reliability.png`, `results/m7_sensitivity.csv`, `figures/m7_sensitivity.png`, `results/m7_regret.csv`, `results/m7_predictions_vs_results.csv` |
+| M0 Problem framing | `src/m0_framing/` | objectives, constraints with numbers, decision hierarchy; data audit | `m0_decision_hierarchy.png`, `m0_data_checks.csv` |
+| M1 Vehicle MDO | `src/m1_vehicle/` | five vehicle designs A–E (radius 10–24 km) by MDF sizing, snapped to the catalogue | `m1_mda_convergence.png`, `m1_gradient_check.png`, `m1_mdf_vs_idf.csv` |
+| M2 Hub plate topology | `src/m2_plate/` | SIMP plate-bending topology: 108.7 g cut plate, 2.31× solid compliance, ≥ 6 mm members | `m2_mbb_benchmark.png`, `m2_verification.csv`, `m2_plate_outline.dxf` |
+| M3 Rotor surrogate | `src/m3_surrogate/` | cubic-RBF FM(D, T) from 30 oracle runs; M1 re-run with it | `m3_final_error_table.csv`, `m3_loo_parity_final.png`, `m1_fm_rerun.png` |
+| M4 Hub network and fleet | `src/m4_network/` | MILP (HiGHS) hub siting, assignment, drones and bays per design | `m4_bruteforce.csv`, `m4_lp_gap.csv`, `m4_networks.png` |
+| M5 Discrete-event simulator | `src/m5_simulation/` | SimPy day simulator with hourly wind, outages, queues and road fallback | `m5_mmc_check.png`, `m5_days_ci.csv`, `m5_results.png`, `m5_live_day.gif` |
+| M6 Multi-objective optimisation | `src/m6_moo/` | NSGA-II (common random numbers) over fleet, spares, bays and reserve; knee | `m6_zdt1_check.csv`, `m6_ws_slice.png`, `m6_resim.png`, `m6_pareto.png` |
+| M7 Decision and defense | `src/m7_decision/` | robustness, reliability Monte Carlo, sensitivity, minimax regret, final choice | `m7_robustness.png`, `m7_reliability.png`, `m7_sensitivity.png`, `m7_regret.csv` |
 
-## Structure
+Each module is `src/<module>/run.py` with `run(ctx)`; it receives the outputs of earlier modules in
+`ctx` and returns its own (for example M3 passes `ctx["fm_surrogate"]` to the M1 re-run and M4).
+
+## Repository layout
 
 ```
 run_all.py               one script for the whole chain
 requirements.txt
 data/                    given data pack, unchanged (components, costs, demand, hourly_profile,
 │                        nofly, sites, wind_days)
-└── oracle/              FM oracle results: result_1.csv (request_/result_ 2 and 3 to come)
+└── oracle/              FM oracle requests and results (request_2/3, result_1/2/3)
 src/
 ├── common/              repo paths and data loaders shared by all modules
-├── m0_framing/ … m7_decision/
-│   └── run.py           run(ctx) -> dict; its presence plugs the module into run_all.py
-notebooks/               exploration and step-by-step working (M1_vehicle_MDO, M2_hub_plate_topology, M3_*)
-results/  figures/       written by run_all.py
-report/
-├── formulation_cards/   M0.md … M7.md (one page each)
-├── verification_appendix.md
-├── decision_log.md      decisions and AI suggestions accepted/rejected
-├── decision_memo.md/.pdf  two-page memo for the DHO (M7)
-└── pareto_pitch.md      3-minute Pareto pitch script
+└── m0_framing/ … m7_decision/
+notebooks/               M1 and M2 working notebooks; M3 exploration and the oracle-request trail
+                         (request 1 LHS, step 3/4 fit, request 2, refit, request 3, final)
+results/  figures/       tables and figures written by run_all.py (plus the M3 notebook figures
+                         cited in the appendix)
+report/                  written deliverables (below)
 ```
 
-## Adding a module
+## Deliverables
 
-Create `src/mN_name/run.py` with
+| Deliverable | Where |
+|---|---|
+| Code that runs end to end from one script | `run_all.py` (this README) |
+| Formulation cards M0–M7, one page each | `report/formulation_cards/M0.md` … `M7.md` |
+| Verification appendix, one figure or table per module | `report/verification_appendix.md` |
+| Decision log, with AI suggestions accepted or rejected | `report/decision_log.md` |
+| Two-page decision memo for the DHO (M7) | `report/decision_memo.md`, `report/decision_memo.pdf` |
+| 3-minute Pareto pitch | `report/pareto_pitch.md` |
+| M3 oracle requests and their defence | `report/m3_request2_defence.md`, `report/m3_request3_defence.md` |
 
-```python
-def run(ctx):
-    # ctx holds outputs of earlier modules, e.g. ctx["fm_surrogate"] from M3
-    ...
-    return {"my_output": value}   # merged into ctx for later modules
-```
-
-Write its verification figure/table to `figures/`/`results/`, then update the status table above,
-`report/verification_appendix.md` and `report/decision_log.md`.
+The cards, appendix sections and decision-log entries are also submitted as eight module-wise PDFs.
