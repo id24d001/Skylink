@@ -165,3 +165,4 @@ Plan agreed with the user before building (all five open choices accepted as rec
 - One script `run_all.py` runs M0→M7 in order; a module joins the chain once it has `src/<module>/run.py` with `run(ctx)`. Unimplemented modules are skipped, so the chain always runs.
 - Given data copied unchanged into `data/`; any cleaning is done in code and logged here.
 - Course handout PDF kept out of the repo.
+- **Every formulation card lists all its assumptions** (user rule), in its "Key assumptions and data issues handled" section: every modelling assumption and every choice the brief leaves open, each card still ≤ 1 page (checked by rendering to A4 at 10 pt).
