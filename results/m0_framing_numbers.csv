@@ -1,0 +1,8 @@
+quantity,value,source
+emergency orders per day,27.36,demand.csv
+routine orders per day,94.77,demand.csv
+lab orders per day,73.53,demand.csv
+"road-only cost, INR per year",55680750.0,"all orders by road, costs.yaml"
+bays that can charge in an outage,2.0,3 kW genset / 1.5 kW bay
+"one hub, INR per year (CRF capex + opex)",692941.7107885208,"costs.yaml, 10 %, 10 y"
+"minimum staff per open hub, INR per year",1511999.9999999998,1 operator x 3 shifts x 1.2
