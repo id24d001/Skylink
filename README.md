@@ -50,7 +50,7 @@ GitHub tab → search `id24d001/skylink` (tick "Include private repos" if privat
 | M1 Vehicle MDO | `src/m1_vehicle/` | ✅ FM0 = 0.65; 5 snapped designs | `figures/m1_mda_convergence.png`, `figures/m1_gradient_check.png`, `results/m1_mdf_vs_idf.csv`, `results/m1_designs.csv` |
 | M2 Hub plate topology | `src/m2_plate/` | ✅ plate-bending SIMP, density filter; vf 0.32 → 108.7 g cut part, 2.31× solid compliance, ≥ 6 mm members; M1 re-run with it | `figures/m2_mbb_benchmark.png`, `results/m2_verification.csv`, `figures/m2_compliance_vs_mass.png`, `figures/m2_outline.png`, `results/m2_plate_outline.dxf`, `results/m2_m1_feedback.csv` |
 | M3 Rotor surrogate | `src/m3_surrogate/` | ✅ 30 runs fitted and verified (LOO, 5-fold, hold-out); cubic RBF; M1 re-run with it | `results/m3_loo_table.csv`, `figures/m3_loo_parity.png`, `results/m1_fm_comparison.csv`, `figures/m1_fm_rerun.png` |
-| M4 Hub network and fleet | `src/m4_network/` | ⬜ | |
+| M4 Hub network and fleet | `src/m4_network/` | ✅ MILP (HiGHS) per design, brief's rules (every PHC served, still-air reach with reserve, 70 % on mean demand); D cheapest ₹1.69 cr/yr (4 hubs, 8 drones); A, B infeasible; brute force matches | `results/m4_cost_vs_design.csv`, `results/m4_bruteforce.csv`, `results/m4_lp_gap.csv`, `figures/m4_networks.png` |
 | M5 Discrete-event simulator | `src/m5_simulation/` | ⬜ | |
 | M6 Multi-objective optimisation | `src/m6_moo/` | ⬜ | |
 | M7 Decision and defense | `src/m7_decision/` | ⬜ | |

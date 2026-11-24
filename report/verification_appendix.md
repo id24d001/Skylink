@@ -9,7 +9,7 @@ into `figures/` and `results/`.
 | M1 | MDA convergence plot; finite-difference gradient check at two step sizes; MDF vs IDF within 1% | `figures/m1_mda_convergence.png`, `figures/m1_gradient_check.png`, `results/m1_gradient_check.csv`, `results/m1_mdf_vs_idf.csv`, `results/m1_hand_check.csv` | ✅ |
 | M2 | MBB-beam benchmark reproduced; no-filter and p = 1 cases explained | `figures/m2_mbb_benchmark.png`, `results/m2_mbb_benchmark.csv`, `results/m2_verification.csv` | ✅ |
 | M3 | LOOCV error table; parity plot; note on oracle noise | `results/m3_final_error_table.csv`, `figures/m3_loo_parity_final.png`, noise note below | ✅ final (30 runs) |
-| M4 | Brute force on 4-hub, 8-PHC sub-instance matches solver; LP-relaxation gap; big-M justified | — | ⬜ |
+| M4 | Brute force on 4-hub, 8-PHC sub-instance matches solver; LP-relaxation gap; big-M justified | `results/m4_bruteforce.csv`, `results/m4_lp_gap.csv`, `results/m4_bigm_check.csv`, `results/m4_hand_check.csv`, `figures/m4_networks.png` | ✅ |
 | M5 | One hub, exponential service, no wind/outage vs Erlang C; days chosen so S45 95% CI < ±3 pp | — | ⬜ |
 | M6 | Weighted-sum points on or behind NSGA-II front (2-objective slice); re-simulated front vs surrogate | — | ⬜ |
 | M7 | Robustness / reliability / sensitivity tables | — | ⬜ |
@@ -195,3 +195,50 @@ The real FM moves the optimum away from FM0: +4 to +8 % take-off mass and smalle
 The last 6 oracle points moved it by less than 1 %.
 
 Swapping the surrogate (thin-plate or GP instead of cubic RBF) changes the continuous mass by at most 1.6 % (`results/m3_m1_surrogate_sensitivity.csv`). The snapped catalogue designs are identical, except D (11.61 vs 11.64 kg with the GP).
+
+## M4 — Hub network and fleet
+
+The model follows the brief's M4 rules:
+- every PHC is served by a hub;
+- reach = the still-air M1 radius with its 15 % reserve;
+- drone busy time ≤ 70 % on mean daily demand;
+- cost terms from costs.yaml.
+
+**Brute force vs MILP** (`results/m4_bruteforce.csv`).
+- Sub-instance: hubs H0, H1, H3, P09 and PHCs P04–P08, P10, P22, P23 (the central-west, where assignments are contested). It is run for every design, with and without the road what-if (10 cases).
+- The brute force does not use the MILP matrix. It enumerates every assignment of each PHC to a hub that reaches it: 24 assignments for B, 432 for C and D, 2,916 for E. For each one it opens only the hubs used and sizes each directly: drones = max(1, ⌈busy / capacity⌉), the fewest bays meeting both bay-hour limits, operators = max(1, ⌈drones/4⌉).
+- Result: 10 of 10 cases give the same optimum (max relative difference 1e-16) and the same assignment. Design A is infeasible under both methods.
+
+| Design | Assignments | Brute force ₹ | MILP ₹ | Same assignment |
+|---|---|---|---|---|
+| A | 0 | infeasible | infeasible | ✓ |
+| B | 24 | 87,95,891 | 87,95,891 | ✓ |
+| C | 432 | 70,39,942 | 70,39,942 | ✓ |
+| D | 432 | 73,01,583 | 73,01,583 | ✓ |
+| E | 2,916 | 80,41,892 | 80,41,892 | ✓ |
+
+**LP-relaxation gap** (`results/m4_lp_gap.csv`), full instance:
+
+| Design | MILP ₹ cr | LP ₹ cr | Gap | Hubs (LP Σy / MILP) |
+|---|---|---|---|---|
+| C | 1.832 | 1.788 | 2.4 % | 5.0 / 5 |
+| D | 1.687 | 1.635 | 3.1 % | 4.0 / 4 |
+| E | 1.755 | 1.672 | 4.7 % | 3.0 / 3 |
+
+The LP already opens whole hubs, because x_ij ≤ y_j is the tight form. The gap comes only from rounding up drones, bays and operators (for example 1.6 drones → 2). HiGHS closes it to 0 in under 1 s.
+
+**Big-M.** The only big-Ms are n_j ≤ N_max,j·y_j, b_j ≤ B_max,j·y_j and o_j ≤ O_max,j·y_j.
+- N_max,j is the fleet hub j would need if it served every PHC it can reach (1–5 drones). No feasible plan needs more at hub j, so the bound is valid and as tight as it can be.
+- Check: doubling every big-M leaves the optimum unchanged to the rupee for C, D and E (`results/m4_bigm_check.csv`).
+
+**Hand check** (`results/m4_hand_check.csv`, design C). The following all match an independent calculation exactly:
+- hub, drone, bay and operator costs;
+- usable drone-minutes per drone per day (953);
+- H1→P01 drone-minutes per day (152.4);
+- H1→P01 battery-pack cost;
+- outage hours per day (1.29).
+
+Numbers above are from the full `python run_all.py` chain (M1 designs passed in memory). Running `--only m4` reads the rounded CSV and differs by a few rupees.
+
+![M4 networks per design](../figures/m4_networks.png)
+![M4 annual cost vs design](../figures/m4_cost_vs_design.png)
