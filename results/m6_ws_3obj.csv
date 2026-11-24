@@ -1,0 +1,4 @@
+design,config,cost_cr,S45,road_share,P95,ws_value,on_or_behind_front,chosen
+E 3-hub,E n4-4-4 s4-5-8 b6-8-3 k1-1-1,2.23065,0.90123,0.07630,150.00000,0.26624,True,True
+C cover-all,C n3-4-4-3-4 s0-3-2-4-3 b1-4-2-4-2 k0-1-1-0-1,2.49455,0.89305,0.06231,150.00000,0.34612,False,False
+D 4-hub,D n4-4-2-4 s7-4-2-2 b4-4-2-3 k0-0-0-0,2.25639,0.89373,0.07358,150.00000,0.36407,False,False
