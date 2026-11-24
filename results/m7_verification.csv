@@ -1,0 +1,12 @@
+check,item,value,passed
+V1 typical year = M6 365-day re-check,knee,"dS45 -0.00000, dcost +0.00000 cr",True
+V1 typical year = M6 365-day re-check,best S45,"dS45 +0.00000, dcost +0.00000 cr",True
+V1 typical year = M6 365-day re-check,no reserve,"dS45 -0.00000, dcost -0.00000 cr",True
+"V2 cost model = M6 cost_terms (knee, every term)",knee,max rel. diff 0.0e+00,True
+V4 Monte Carlo precision: Wilson 95 % half-width <= 5 pp,knee,4.0 pp (N = 500),True
+V4 Monte Carlo precision: Wilson 95 % half-width <= 5 pp,best S45,4.0 pp (N = 500),True
+V4 Monte Carlo precision: Wilson 95 % half-width <= 5 pp,no reserve,3.2 pp (N = 500),True
+"V3 Monte Carlo at demand 1.0, availability 1.0 = 365-day S45 (knee)",knee,"0.8922 vs 0.8891 (diff +0.0031, tol 0.0154)",True
+V2 M1 re-size at 150 Wh/kg reproduces M1 design E,E,m 15.1924 vs 15.1924 kg,True
+V2 archive re-pick at nominal price = M6 knee,knee,E n4-3-4 s4-4-6 b3-2-4 k1-1-1,True
+V2 drone-price hand check (11 drones x 0.7 x capex x (CRF + 15 %)),knee,3756672 vs hand 3756672 INR/yr,True

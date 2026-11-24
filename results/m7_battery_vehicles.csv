@@ -1,0 +1,4 @@
+variant,m_kg,E_Wh,E_use_Wh,V_ms,D_m,R_still_air_km,battery,motor
+nominal (150 Wh/kg),15.1924,1420.8000,966.1440,20.0000,0.6604,24.0901,4xB6S-16K,M80
+"A: same drone, packs +20 % energy",15.1924,1704.9600,1159.3728,20.0000,0.6604,,4xB6S-16K at 180 Wh/kg,M80
+B: M1 re-sized for the same radius (180 Wh/kg),11.3648,1065.6000,724.6080,17.0000,0.6858,24.1275,3xB6S-16K,M60

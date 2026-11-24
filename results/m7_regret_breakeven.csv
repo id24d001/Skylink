@@ -1,0 +1,3 @@
+scenario_set,knee_minimax_from_cr_per_pp,knee_minimax_to_cr_per_pp
+within drone life,0.0525,0.5000
+all,,

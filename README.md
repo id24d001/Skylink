@@ -19,11 +19,11 @@ Python 3.10 or newer.
 ```bash
 python run_all.py            # every implemented module, M0 -> M7
 python run_all.py --only m3  # just one (or several) modules
-python run_all.py --fast     # quick smoke run (small M6 budgets)
+python run_all.py --fast     # quick smoke run (small M6 and M7 budgets)
 ```
 
 Outputs go to `results/` (tables, CSV/JSON) and `figures/` (verification plots).
-The full chain takes about 47 minutes; M6 (about 41 min on 4 cores, 8,500 simulated configurations), M2 (about 3 min) and M5 (about 1.5 min) are most of that. `python run_all.py --fast` runs M6 with small search budgets (about 6 min) for a quick end-to-end check; its numbers are not the reported ones. For M2 on a 1 mm mesh instead of the
+The full chain takes about 52 minutes on 4 cores; M6 (about 40 min, 8,500 simulated configurations), M7 (about 7.5 min, 75,000 simulated days), M2 (about 3 min) and M5 (about 1.5 min) are most of that. `python run_all.py --fast` runs M6 and M7 with small budgets (about 10 min) for a quick end-to-end check; its numbers are not the reported ones. The DHO memo PDF is built separately with `python src/m7_decision/memo_pdf.py` (needs pandoc and Chrome/Chromium). For M2 on a 1 mm mesh instead of the
 default 2 mm one, run `SKYLINK_M2_MESH=fine python run_all.py --only m1 m2` (about 30 minutes; it gave the same ratios within 2 % at vf 0.20 and 0.25).
 Running M2 also re-runs M1 with the new plate mass, so M1's files in `results/` are post-M2.
 Modules that are not implemented yet are skipped with a note, so the script always runs end to end.
@@ -54,7 +54,7 @@ GitHub tab → search `id24d001/skylink` (tick "Include private repos" if privat
 | M4 Hub network and fleet | `src/m4_network/` | ✅ MILP (HiGHS) per design, brief's rules (every PHC served, still-air reach with reserve, 70 % on mean demand); D cheapest ₹1.69 cr/yr (4 hubs, 8 drones); A, B infeasible; brute force matches | `results/m4_cost_vs_design.csv`, `results/m4_bruteforce.csv`, `results/m4_lp_gap.csv`, `figures/m4_networks.png` |
 | M5 Discrete-event simulator | `src/m5_simulation/` | ✅ SimPy day simulator on the M4 networks; Erlang C check 8/8, 73 days for ±3 pp; D as M4: S45 0.851 ± 0.025, wind ceiling 0.88–0.89; live view GIF | `figures/m5_mmc_check.png`, `results/m5_mmc_check.csv`, `results/m5_days_ci.csv`, `results/m5_kpis.csv`, `figures/m5_results.png`, `figures/m5_live_day.gif` |
 | M6 Multi-objective optimisation | `src/m6_moo/` | ✅ NSGA-II with common random numbers on C, D, E (8,546 simulated configurations, 178-point front); knee = E, 11 drones, 14 spares, 9 bays, 1 reserve per hub: ₹2.25 cr/yr, S45 0.889 ± 0.015 on 365 days; 0.90 not reachable; weighted sum 8/9 on or behind the front (9th ahead by one emergency order), equal-weight weighted sum next to the knee | `results/m6_zdt1_check.csv`, `figures/m6_ws_slice.png`, `results/m6_ws_slice.csv`, `results/m6_ws_3obj.csv`, `figures/m6_resim.png`, `results/m6_resim_365.csv`, `results/m6_cost_hand_check.csv`, `figures/m6_pareto.png`, `figures/m6_convergence.png` |
-| M7 Decision and defense | `src/m7_decision/` | ⬜ | |
+| M7 Decision and defense | `src/m7_decision/` | ✅ top 3 from M6 under calm / typical / worst-monsoon wind (knee S45 0.97 / 0.889 / 0.53); Monte Carlo P(30-day S45 ≥ 0.90) = 0.29 [0.25, 0.33] for the knee; battery +20 % (same drone) → S45 0.944, −₹0.11 cr; drone price −30 % → −₹0.16 cr; demand +15 %/yr: S45 holds, re-tuned cost ₹2.5→4.2 cr by year 5; decision = knee, minimax regret agrees for λ ≥ ₹0.053 cr/pp; two-page DHO memo (`report/decision_memo.md` / `.pdf`) and Pareto pitch (`report/pareto_pitch.md`) | `results/m7_verification.csv`, `results/m7_robustness.csv`, `figures/m7_robustness.png`, `results/m7_reliability.csv`, `figures/m7_reliability.png`, `results/m7_sensitivity.csv`, `figures/m7_sensitivity.png`, `results/m7_regret.csv`, `results/m7_predictions_vs_results.csv` |
 
 ## Structure
 
@@ -73,7 +73,9 @@ results/  figures/       written by run_all.py
 report/
 ├── formulation_cards/   M0.md … M7.md (one page each)
 ├── verification_appendix.md
-└── decision_log.md      decisions and AI suggestions accepted/rejected
+├── decision_log.md      decisions and AI suggestions accepted/rejected
+├── decision_memo.md/.pdf  two-page memo for the DHO (M7)
+└── pareto_pitch.md      3-minute Pareto pitch script
 ```
 
 ## Adding a module

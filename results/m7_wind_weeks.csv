@@ -1,0 +1,4 @@
+scenario,days,rule,mean_wind_ms,grounded_h,hours
+calm week,40-46,7 consecutive days with the lowest mean wind (whole year),2.542,0,168
+typical year,1-365,every day of wind_days.csv,4.446,477,8760
+worst monsoon week,209-215,7 consecutive days ending Jun-Sep with the most gust-grounded hours,8.455,67,168

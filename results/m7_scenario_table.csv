@@ -1,0 +1,31 @@
+scenario,candidate,S45,cost_cr,S45_regret_pp,cost_regret_cr
+wind: calm week,knee,0.9664,,0.0210,
+wind: typical year,knee,0.8891,2.2508,0.0346,0.0491
+wind: worst monsoon week,knee,0.5343,,0.0376,
+wind: calm week,best S45,0.9666,,0.0000,
+wind: typical year,best S45,0.8894,2.4514,0.0000,0.2496
+wind: worst monsoon week,best S45,0.5346,,0.0000,
+wind: calm week,no reserve,0.9612,,0.5468,
+wind: typical year,no reserve,0.8801,2.2017,0.9266,0.0000
+wind: worst monsoon week,no reserve,0.5223,,1.2379,
+reliability Monte Carlo (mean),knee,0.8843,,0.0596,
+reliability Monte Carlo (mean),best S45,0.8849,,0.0000,
+reliability Monte Carlo (mean),no reserve,0.8715,,1.3330,
+"battery +20 %, same drone",knee,0.9445,2.1362,0.0725,0.0923
+"battery +20 %, same drone",best S45,0.9453,2.3068,0.0000,0.2630
+"battery +20 %, same drone",no reserve,0.9353,2.0438,1.0004,0.0000
+"battery +20 %, lighter drone",knee,0.8697,2.1653,0.0828,0.0952
+"battery +20 %, lighter drone",best S45,0.8705,2.2910,0.0000,0.2209
+"battery +20 %, lighter drone",no reserve,0.8452,2.0701,2.5317,0.0000
+drone price -30 %,knee,0.8891,2.0898,0.0346,0.0491
+drone price -30 %,best S45,0.8894,2.2611,0.0000,0.2203
+drone price -30 %,no reserve,0.8801,2.0407,0.9266,0.0000
+"demand year 1 (x1.15), fleet fixed",knee,0.8846,2.5060,0.0201,0.1310
+"demand year 1 (x1.15), fleet fixed",best S45,0.8848,2.6674,0.0000,0.2925
+"demand year 1 (x1.15), fleet fixed",no reserve,0.8717,2.3749,1.3031,0.0000
+"demand year 3 (x1.52), fleet fixed",knee,0.8861,3.5440,0.0989,0.6259
+"demand year 3 (x1.52), fleet fixed",best S45,0.8871,3.4254,0.0000,0.5073
+"demand year 3 (x1.52), fleet fixed",no reserve,0.8766,2.9181,1.0488,0.0000
+"demand year 5 (x2.01), fleet fixed",knee,0.8836,5.2721,0.0676,0.8393
+"demand year 5 (x2.01), fleet fixed",best S45,0.8843,5.0146,0.0000,0.5818
+"demand year 5 (x2.01), fleet fixed",no reserve,0.8726,4.4328,1.1610,0.0000
