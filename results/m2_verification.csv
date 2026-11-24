@@ -1,0 +1,9 @@
+check,mesh,value,reference,rel_error_pct
+"ACM element: SS square plate, w_max D / (q a^4)",8 x 8,0.00412933,0.00406235,1.64888
+"ACM element: SS square plate, w_max D / (q a^4)",16 x 16,0.0040791,0.00406235,0.412428
+"ACM element: SS square plate, w_max D / (q a^4)",32 x 32,0.00406654,0.00406235,0.103171
+"ACM element: SS square plate, w_max D / (q a^4)",64 x 64,0.0040634,0.00406235,0.0258431
+"symmetry: solid plate compliance, 4 x quarter vs whole (N mm)",20^2 quarter / 40^2 whole,64.7131,64.7131,-6.16385e-10
+"adjoint dc/dx vs central difference (6 random elements), max rel. error","8^2 quarter, step 0.0001",7.68217e-07,0,7.68217e-05
+"adjoint dc/dx vs central difference (6 random elements), max rel. error","8^2 quarter, step 1e-06",3.01258e-05,0,0.00301258
+"mesh: cut-part compliance ratio at vf 0.32, 2.00 mm vs 1.33 mm design mesh",40^2 vs 60^2 quarter,2.31365,2.32803,-0.617486
