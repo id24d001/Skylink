@@ -9,13 +9,14 @@ Typical use (also from M1 and run_all.py):
     fm, sd = gp.predict(make_features(0.5, 20.0), return_std=True)
 """
 from .data import (D_MIN, D_MAX, T_MIN, T_MAX,
-                   load_oracle, disk_loading, make_features)
+                   load_oracle, disk_loading, make_features, average_repeats)
 from .models import QuadraticSurrogate, RBFSurrogate, GPSurrogate
-from .validation import loo_predictions, loo_table
+from .validation import (loo_predictions, loo_table, repeated_kfold, holdout_errors, shape_checks,
+                         freeze_predictions)
 from .adaptive import candidate_grid, trend_std, greedy_select, write_request_csv
 
 __all__ = ["D_MIN", "D_MAX", "T_MIN", "T_MAX",
-           "load_oracle", "disk_loading", "make_features",
+           "load_oracle", "disk_loading", "make_features", "average_repeats",
            "QuadraticSurrogate", "RBFSurrogate", "GPSurrogate",
-           "loo_predictions", "loo_table",
+           "loo_predictions", "loo_table", "repeated_kfold", "holdout_errors", "shape_checks", "freeze_predictions",
            "candidate_grid", "trend_std", "greedy_select", "write_request_csv"]

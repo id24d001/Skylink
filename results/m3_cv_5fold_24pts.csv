@@ -1,0 +1,6 @@
+model,LOO RMSE,5-fold RMSE mean,5-fold RMSE std,"5-fold, no cliff mean","5-fold, no cliff std"
+quadratic,0.0800,0.0807,0.0093,0.0649,0.0100
+RBF thin-plate exact,0.0528,0.0620,0.0079,0.0453,0.0132
+RBF cubic,0.0338,0.0432,0.0083,0.0424,0.0128
+GP (ARD + nugget),0.0680,0.0778,0.0088,0.0531,0.0125
+"GP on (log DL, D) [reference]",0.0154,0.0282,0.0130,,

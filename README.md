@@ -46,7 +46,7 @@ GitHub tab → search `id24d001/skylink` (tick "Include private repos" if privat
 | M0 Problem framing | `src/m0_framing/` | ⬜ | formulation card |
 | M1 Vehicle MDO | `src/m1_vehicle/` | ✅ FM0 = 0.65; 5 snapped designs | `figures/m1_mda_convergence.png`, `figures/m1_gradient_check.png`, `results/m1_mdf_vs_idf.csv`, `results/m1_designs.csv` |
 | M2 Hub plate topology | `src/m2_plate/` | ⬜ | |
-| M3 Rotor surrogate | `src/m3_surrogate/` | 🟡 request 1 fitted, LOOCV done, request 2 chosen (scoring script) | `results/m3_loo_table.csv`, `figures/m3_loo_parity.png` |
+| M3 Rotor surrogate | `src/m3_surrogate/` | 🟡 24 runs (requests 1+2) fitted, LOOCV done; request 3 to plan | `results/m3_loo_table.csv`, `figures/m3_loo_parity.png` |
 | M4 Hub network and fleet | `src/m4_network/` | ⬜ | |
 | M5 Discrete-event simulator | `src/m5_simulation/` | ⬜ | |
 | M6 Multi-objective optimisation | `src/m6_moo/` | ⬜ | |

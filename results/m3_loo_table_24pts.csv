@@ -1,0 +1,7 @@
+model,LOO RMSE,LOO MAE,max |error|,worst pt,LOO Q2,mean z^2
+quadratic,0.0800,0.0561,0.2133,19,0.4267,
+RBF thin-plate exact,0.0528,0.0291,0.1975,19,0.7503,
+RBF thin-plate s=1e-3,0.0532,0.0293,0.1995,19,0.7468,
+RBF cubic,0.0338,0.0204,0.0993,3,0.8975,
+GP (ARD + nugget),0.0680,0.0368,0.2652,19,0.5852,4.9290
+"GP on (log DL, D) [reference]",0.0154,0.0114,0.0400,19,0.9788,2.0057
