@@ -168,6 +168,18 @@ Final surrogate with uncertainty (cubic RBF, jackknife std): ![M3 final surrogat
   - (3) The M1 designs sit at DL 40–110, where the jackknife std of the surrogate is below about 0.02 and all models agree.
   - The cliff region is reported as untrustworthy for design and is not used.
 
+### Local error where M1 operates (DL 40–110) — `results/m3_local_error_M1_region.csv`
+
+| Model | LOO RMSE, DL 40–110 (n=16) | max abs LOO error | Hold-out RMSE at R3-1/R3-2 (near C, D) | Global LOO RMSE |
+|---|---|---|---|---|
+| Quadratic | 0.044 | 0.097 | 0.028 | 0.078 |
+| RBF thin-plate | 0.016 | 0.042 | 0.006 | 0.037 |
+| RBF cubic (used) | 0.017 | 0.042 | 0.007 | 0.041 |
+| GP (ARD + nugget) | 0.013 | 0.034 | 0.002 | 0.041 |
+
+The global error is driven by the cliff above DL ≈ 180, which M1 never uses. In the M1 band the cubic RBF error is
+about 0.017 in FM (about 2–3 % of FM ≈ 0.65–0.75), and about 0.007 at the two hold-out points next to designs C and D.
+
 ### M1 optimum with the final surrogate (plate mass from M2) — `results/m3_m1_optimum_shift.csv`
 
 | design | m FM0 kg | m 24-run fit kg | m final kg | Δ vs FM0 | Δ vs 24-run | D FM0 → final m |
