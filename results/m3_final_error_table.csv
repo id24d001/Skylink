@@ -1,0 +1,5 @@
+model,LOO RMSE,5-fold RMSE mean,5-fold RMSE std,final hold-out RMSE,LOO MAE,max |error|,worst pt,LOO Q2,mean z^2
+quadratic,0.0776,0.0835,0.0114,0.0875,0.0548,0.2428,20,0.6081,
+RBF thin-plate exact,0.0367,0.0462,0.0110,0.0592,0.0236,0.0923,3,0.9122,
+RBF cubic,0.0409,0.0512,0.0101,0.0513,0.0275,0.1060,3,0.8911,
+GP (ARD + nugget),0.0408,0.0578,0.0180,0.0441,0.0262,0.1092,28,0.8916,13.8812
