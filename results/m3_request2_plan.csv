@@ -1,0 +1,10 @@
+point,category,D_m,T_N,DL,exploit_score,explore_score,sigma,dist_existing,dist_any,near_M1,why,FM_GP,sd_GP,FM_RBF
+R2-1,exploitation,0.755,19.38,43.2882,0.473,0.3831,0.0363,0.1473,0.1473,C-empty,highest exploitation score: close to M1 hover point and still uncertain,0.5861,0.0363,0.5922
+R2-2,exploitation,0.735,26.13,61.585,0.4096,0.3046,0.0285,0.1536,0.1536,C-loaded,highest exploitation score: close to M1 hover point and still uncertain,0.6413,0.0307,0.6321
+R2-3,exploitation,0.79,38.93,79.4219,0.2342,0.3929,0.036,0.1088,0.1088,E-loaded,highest exploitation score: close to M1 hover point and still uncertain,0.6514,0.0392,0.671
+R2-4,exploration,0.35,40.0,415.7517,0.0,1.0,0.0673,0.2998,0.2998,,highest exploration score: largest uncertainty / model disagreement,0.5453,0.0673,0.2308
+R2-5,exploration,0.8,8.0,15.9155,0.0417,0.6963,0.0586,0.2009,0.2009,,highest exploration score: largest uncertainty / model disagreement,0.5704,0.0592,0.479
+R2-6,exploration,0.41,8.0,60.5944,0.0,0.5615,0.0538,0.2449,0.2449,,highest exploration score: largest uncertainty / model disagreement,0.6627,0.0538,0.6604
+R2-7,random,0.644,21.17,64.9919,0.1645,0.2235,0.021,0.1188,0.1188,B-loaded,uniform random (seed 6002): unbiased check of the surrogate,0.632,0.0291,0.6373
+R2-8,random,0.717,34.6,85.6935,0.0436,0.1729,0.0154,0.115,0.115,E-empty,uniform random (seed 6002): unbiased check of the surrogate,0.6847,0.0264,0.6712
+R2-9,repeat,0.383,25.97,225.4159,0.0,0.001,0.0001,0.0,0.0,,repeat of pt 3: difference between the two FM values = oracle noise,0.4683,0.0001,0.4683
