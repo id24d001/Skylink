@@ -28,7 +28,16 @@ Format: **[module] decision** — why. Mark AI suggestions as *AI accepted* / *A
 - Noise check: GP nugget vs signal variance + standardised LOO residuals (mean z²). Caveat: no repeats yet, so nugget cannot separate noise from sharp real features.
 - AI suggestion accepted: put fitting code in src/m3_surrogate/ so M1 re-run and run_all.py import the same functions.
 - AI suggestion rejected: (log DL, D) as surrogate inputs. Chosen instead: plain scaled (D, T) for all models, because D spans only ~2.3× and T ~5×, so a log transform is not needed and (D, T) is simpler to explain. DL kept only for interpretation (plots, report). Note from the test run: LOO errors are higher in (D, T) than with (log DL, D), most for the GP; to be weighed after the user's own run.
-- ⬜ To fill after running: chosen surrogate for M1 and why; noise conclusion.
+- Step 3/4 result (user's run, inputs (D, T)): LOO RMSE quadratic 0.074 (Q² −0.24), RBF thin-plate 0.050 (smoothed 0.050), **RBF cubic 0.047 (Q² 0.50, best)**, GP 0.073 (Q² −0.18). Worst points 3, 15, 1, all at the DL extremes.
+- GP finding: fitted nugget ≈ 0 (interpolates, nugget/signal ~ 2e-6) but LOO mean z² = 3.1, i.e. the GP is over-confident: its errors are ~1.8× larger than its σ claims. Cause is either oracle noise or shape the (D, T) kernel cannot follow; repeats in request 2 decide which.
+- Known trade-off to revisit after request 2: the same GP on (log DL, D) inputs scored LOO RMSE ≈ 0.016 vs 0.073 on (D, T). Kept (D, T) for simplicity (user's choice); re-check with 24 points.
+- ⬜ To fill: chosen surrogate for M1 and why; noise conclusion (after result_2).
+- Request 2 first draft (hand-picked 9 points: 2 repeats, iso-DL line in the gap, corners, rough M1 region) was **superseded** once M1 was done; not sent.
+- Before choosing, plotted GP σ, |RBF − GP| and the M1 hover points A–E (loaded/empty) over (D, T) to see the area of interest (`figures/m3_uncertainty_vs_M1_region.png`). Found: largest σ in the box corners, moderate σ in the M1 region, A-empty ≈ pt 15 and E-loaded ≈ pt 2 already measured.
+- **User decision: request 2 = 3 exploitation + 3 exploration + 2 random + 1 repeat**, 9 points, keep 6 for request 3. Also user's request: choose by a reproducible scoring script, not by hand.
+- *AI accepted*: the scoring rules in `src/m3_surrogate/select_points.py` — exploration = 0.7·σ + 0.3·|RBF−GP| (normalised); exploitation = closeness to M1 hover points (Gaussian, width 0.08 scaled; C weight 1, others 0.6) × σ; greedy picks with min distance 0.10 scaled and σ updated after each pick; random uniform with seed 6002; repeat of pt 3.
+- *AI rejected (user)*: reserve one exploration pick for the DL gap 151–217. Declined; the score-based picks (three box corners/edges) were kept as they are.
+- Request 2 points (defence in `report/m3_request2_defence.md`, figure `figures/m3_request2_scores.png`): exploitation (0.755, 19.38), (0.735, 26.13), (0.790, 38.93); exploration (0.350, 40.00), (0.800, 8.00), (0.410, 8.00); random (0.644, 21.17), (0.717, 34.60); repeat (0.383, 25.97). GP and RBF predictions recorded before sending.
 - Data provenance: `notebooks/M3_oracle_request1_LHS.ipynb` prints 15 points (seed 42) that do **not** match the points in `data/oracle/result_1.csv` (different seed or pyDOE version when the request was actually sent). `result_1.csv` is the source of truth; the notebook is kept as a record of the method only. ⬜ To fix: regenerate or annotate the notebook so its points match result_1.
 
 ## Repo
