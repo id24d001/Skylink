@@ -38,8 +38,12 @@ def ceil1(v):
     return math.ceil(v * 10 - 1e-9) / 10
 
 
+SIZING_WIND = 0.0   # M1 sizes in still air, as eq. (5) defines R; wind is applied in M4/M5/M7
+
+
 def design_wind(q=0.90, gust_limit=14.0):
-    """Design headwind: 90th percentile of the hourly mean wind in hours drones may fly."""
+    """P90 of the hourly mean wind in flyable hours (6.4 m/s). Not used for M1 sizing; a
+    reference value for M4/M7 when they apply the brief's headwind model (model.radius_in_wind)."""
     w = load_csv("wind_days.csv")
     return float(np.quantile(w.loc[w.gust_ms < gust_limit, "mean_wind_ms"], q))
 
@@ -49,6 +53,10 @@ def required_radii(dist, wind, p):
     nearest = dist.min(axis=0).sort_values(ascending=False)
     r4, hubs4 = min_cover_radius(dist, 4)
     R_reach = math.floor(snap_max_radius(Problem(1.0, wind, p)) * 10) / 10
+    r3, hubs3 = min_cover_radius(dist, 3)
+    last = (("E 3-hub", (ceil1(r3), f"every PHC from only 3 hubs ({', '.join(hubs3)})"))
+            if ceil1(r3) <= R_reach else
+            ("E reach", (R_reach, "longest radius any catalogue build reaches with hover thrust <= 40 N")))
     return {
         "A light": (10.0, "light end: reaches PHCs within 10 km of a hub, more hubs or road for the rest"),
         "B all-but-one": (ceil1(nearest.iloc[1]),
@@ -56,14 +64,14 @@ def required_radii(dist, wind, p):
         "C cover-all": (ceil1(nearest.iloc[0]),
                         f"every PHC from its nearest candidate hub (bottleneck {nearest.index[0]})"),
         "D 4-hub": (ceil1(r4), f"every PHC from only 4 hubs ({', '.join(hubs4)})"),
-        "E reach": (R_reach, "longest radius any catalogue build reaches with hover thrust <= 40 N"),
+        last[0]: last[1],
     }
 
 
 def run(ctx):
     p = Params(m_plate=ctx.get("m2_plate_mass", 0.25))
-    wind = design_wind()
-    print(f"  design headwind (P90 of flyable hours): {wind:.2f} m/s; plate mass {p.m_plate:.3f} kg")
+    wind = SIZING_WIND
+    print(f"  sizing in still air (eq. 5); plate mass {p.m_plate:.3f} kg")
 
     # ---- target radius from the network geometry
     dist = hub_phc_distances()
@@ -138,7 +146,7 @@ def resolve(R_req_km, fm=None, m_plate=0.25, wind=None, complex_safe=None, n_sta
     from .model import fm_constant
     p = Params(m_plate=m_plate, fm=fm or fm_constant,
                complex_safe=(fm is None) if complex_safe is None else complex_safe)
-    prob = Problem(R_req_km, design_wind() if wind is None else wind, p)
+    prob = Problem(R_req_km, SIZING_WIND if wind is None else wind, p)
     best, _ = solve_mdf(prob, n_starts=n_starts)
     x = prob.to_x(best.x)
     return x, analyse(x, mda(x, p), p, prob.wind)
@@ -174,9 +182,11 @@ def tradeoff_figure(problems, snapped, cov, wind, p, path):
         a1.plot(2.5, row.R_wind_km, "o", color=line.get_color())
     a1.axvline(2.5, color="grey", lw=0.8, ls=":")
     a1.set_xlabel("payload (kg)")
-    a1.set_ylabel(f"radius in {wind:.1f} m/s headwind (km)")
+    a1.set_ylabel("still-air radius R (km)")
     a1.set_title("Payload-radius trade-off of the 5 built designs\n(dotted: motor or frequency limit exceeded)", fontsize=9)
-    a1.legend(fontsize=8)
+    lo, hi = a1.get_ylim()
+    a1.set_ylim(lo, hi + 0.18 * (hi - lo))
+    a1.legend(fontsize=8, loc="upper center", ncol=3)
 
     Rs = np.linspace(8, max(pr.R_req_km for pr in problems.values()), 30)
     ms = []
@@ -194,7 +204,7 @@ def tradeoff_figure(problems, snapped, cov, wind, p, path):
             a2.axvline(c.radius_km, color="grey", lw=0.6, ls="--")
             a2.text(c.radius_km, 6.6, f" {int(c.k_hubs)} hubs", rotation=90, fontsize=7, color="grey")
     a2.set_ylim(6.2, snapped.m.max() + 1.0)
-    a2.set_xlabel("required radius in design headwind (km)")
+    a2.set_xlabel("required still-air radius (km)")
     a2.set_ylabel("take-off mass (kg)")
     a2.set_title("Lightest drone for each required radius (2.5 kg payload)", fontsize=9)
     a2.legend(fontsize=8, loc="upper left")
