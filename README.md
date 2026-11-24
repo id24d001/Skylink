@@ -46,7 +46,7 @@ GitHub tab → search `id24d001/skylink` (tick "Include private repos" if privat
 
 | Module | Folder | Status | Verification output |
 |---|---|---|---|
-| M0 Problem framing | `src/m0_framing/` | ⬜ | formulation card |
+| M0 Problem framing | `src/m0_framing/` | ✅ data audit, card drafted | `figures/m0_decision_hierarchy.png`, `results/m0_data_checks.csv` |
 | M1 Vehicle MDO | `src/m1_vehicle/` | ✅ FM0 = 0.65; 5 snapped designs | `figures/m1_mda_convergence.png`, `figures/m1_gradient_check.png`, `results/m1_mdf_vs_idf.csv`, `results/m1_designs.csv` |
 | M2 Hub plate topology | `src/m2_plate/` | ✅ plate-bending SIMP, density filter; vf 0.32 → 108.7 g cut part, 2.31× solid compliance, ≥ 6 mm members; M1 re-run with it | `figures/m2_mbb_benchmark.png`, `results/m2_verification.csv`, `figures/m2_compliance_vs_mass.png`, `figures/m2_outline.png`, `results/m2_plate_outline.dxf`, `results/m2_m1_feedback.csv` |
 | M3 Rotor surrogate | `src/m3_surrogate/` | 🟡 24 runs (requests 1+2) fitted, LOOCV done; RBF cubic chosen; M1 re-run with surrogate FM done; request 3 to plan | `results/m3_loo_table.csv`, `figures/m3_loo_parity.png`, `results/m1_fm_comparison.csv`, `figures/m1_fm_rerun.png` |

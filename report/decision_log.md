@@ -3,6 +3,19 @@
 Every modelling decision, with the reason, and every AI suggestion accepted or rejected.
 Format: **[module] decision** — why. Mark AI suggestions as *AI accepted* / *AI rejected* / *AI partly accepted*.
 
+## M0 — Problem framing
+
+- **Three objectives = the three M6 objectives:** min annual cost, max S45, min road-fallback share. Using the same three in M0 and M6 keeps the chain consistent; P95 emergency time is reported only. *AI suggestion accepted* (also the partner's choice).
+- **"45 min" split in two, so it is not both a constraint and an objective** (review point 3). Hard constraint C2: the farthest PHC, with no queue, is reached in ≤ 45 min (P17: 3 + 20.3 + 1 = 24.3 min at 15 m/s). The waiting part is in objective O2 (S45). *AI suggestion accepted; confirmed by the user.*
+- **"Reliable" given a number:** a candidate system needs mean S45 ≥ 90 %; M7 then reports P(S45 ≥ 90 %) under ±25 % demand and 90–98 % availability. The partner kept 90 % out of M0; we use it as an acceptance floor, not as an objective. *AI suggestion accepted; confirmed by the user.*
+- **"Controlled cost" given a number:** annual cost ≤ ₹5.57 crore, the cost of sending every order by road today (27.36 × 2,500 + 168.3 × 500 per day × 365). Cost itself stays objective O1. *AI suggestion accepted; confirmed by the user.*
+- **Coverage is hard: 24 of 24 PHCs reachable by drone.** The brief's first line promises every PHC. So designs A and B (radius 10 and 14.6 km, cannot reach P17) are kept only as what-if cases that price this constraint.
+- **Outage rule turned into a bay limit:** 3 kW genset / 1.5 kW per bay = at most 2 bays charging per hub in an outage.
+- **Decision hierarchy drawn as 4 levels** (vehicle → hub network → fleet and policy → recommendation), with the vehicle design as a categorical variable at levels 2 and 3 (review point 4). The plate outline is a result of M2, not a decision; the SIMP densities and volume fraction are the continuous decisions.
+- **hourly_profile.csv routine column sums to 1.1993 (planted).** Handled openly, not silently: demand.csv is treated as the true daily total, and each class's 24 fractions are rescaled to sum to 1 in code (`m0_framing.clean_hourly_profile`, returned as `ctx["hourly_profile"]` for M5). Alternatives rejected: using the raw column (inflates routine demand by 20 % in M5 but not in M4, so the two would disagree); guessing which hours are wrong (no evidence which ones). The partner advised "do not silently normalise"; rescaling with a logged check meets that.
+- **Data audit in code** (`src/m0_framing/run.py` → `results/m0_data_checks.csv`, 18 checks, 2 flagged: the routine sum and 28 vs 30 tubes). Wind matches the brief's monthly table, batteries are 150 Wh/kg, tube masses match 1,550 kg/m³.
+- *AI rejected:* reusing the partner's 4-page M0 card. It had pasted chat screenshots (against rule 1), no hierarchy, and wishes without numbers. Kept from it: the stakeholders, the three objectives and the 1.1993 catch.
+
 ## M1 — Vehicle MDO
 
 - **Objective: min take-off mass for a required radius, not max radius.** Max radius drives D, E and d to their upper bounds (20.1 kg), with hover thrust of 49 N loaded and 43 N empty, outside the M3 oracle's 8–40 N. Drone capex also rises ₹45,000 per kg, and min-mass gives one design per required radius for M4/M6. *AI suggestion accepted* (proposed in the project chat; the user agreed).

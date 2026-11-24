@@ -1,0 +1,19 @@
+file,check,value,expected,status
+sites.csv,rows,31,31,ok
+sites.csv,PHCs,24,24,ok
+sites.csv,candidate hubs,H0 H1 H2 H3 H4 H5 H6 P09,H0-H6 P09,ok
+demand.csv,PHC rows,24,24,ok
+demand.csv,negative or missing rates,0,0,ok
+hourly_profile.csv,hours,24,24,ok
+hourly_profile.csv,sum of emergency_frac,0.9997,1.0,ok
+hourly_profile.csv,sum of routine_frac,1.1993,1.0,FLAG
+hourly_profile.csv,sum of lab_frac,0.9993,1.0,ok
+wind_days.csv,rows,8760,8760,ok
+wind_days.csv,"duplicate (day, hour)",0,0,ok
+wind_days.csv,gust below mean wind,0,0,ok
+wind_days.csv,"hours grounded (gust >= 14 m/s), %",5.4,brief monthly table,ok
+wind_days.csv,"July hours grounded, %",24.6,24.6,ok
+components.csv,tube sizes,28,30,FLAG
+components.csv,battery Wh/kg (min-max),149.7-150.5,150,ok
+components.csv,"tube mass vs 1550 kg/m3, max rel. error",0.0006,0,ok
+nofly.geojson,zones,2,2,ok
