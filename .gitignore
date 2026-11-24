@@ -6,3 +6,4 @@ venv/
 .DS_Store
 # course handout: keep out of the repo
 *.pdf
+!report/decision_memo.pdf

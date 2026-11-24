@@ -1,0 +1,19 @@
+scenario_set,lambda,lambda_cr_per_pp,candidate,max_S45_regret_pp,max_cost_regret_cr,max_combined_regret_cr,worst_scenario,minimax_pick
+within drone life,implied by knee vs no reserve,0.0550,knee,0.0828,0.1310,0.1321,"demand year 1 (x1.15), fleet fixed",True
+within drone life,implied by knee vs no reserve,0.0550,best S45,0.0000,0.2925,0.2925,"demand year 1 (x1.15), fleet fixed",False
+within drone life,implied by knee vs no reserve,0.0550,no reserve,2.5317,0.0000,0.1392,"battery +20 %, lighter drone",False
+within drone life,road-trip value of a pp,0.0247,knee,0.0828,0.1310,0.1315,"demand year 1 (x1.15), fleet fixed",False
+within drone life,road-trip value of a pp,0.0247,best S45,0.0000,0.2925,0.2925,"demand year 1 (x1.15), fleet fixed",False
+within drone life,road-trip value of a pp,0.0247,no reserve,2.5317,0.0000,0.0627,"battery +20 %, lighter drone",True
+within drone life,high: 0.20 cr per pp,0.2000,knee,0.0828,0.1310,0.1350,"demand year 1 (x1.15), fleet fixed",True
+within drone life,high: 0.20 cr per pp,0.2000,best S45,0.0000,0.2925,0.2925,"demand year 1 (x1.15), fleet fixed",False
+within drone life,high: 0.20 cr per pp,0.2000,no reserve,2.5317,0.0000,0.5063,"battery +20 %, lighter drone",False
+all,implied by knee vs no reserve,0.0550,knee,0.0989,0.8393,0.8431,"demand year 5 (x2.01), fleet fixed",False
+all,implied by knee vs no reserve,0.0550,best S45,0.0000,0.5818,0.5818,"demand year 5 (x2.01), fleet fixed",False
+all,implied by knee vs no reserve,0.0550,no reserve,2.5317,0.0000,0.1392,"battery +20 %, lighter drone",True
+all,road-trip value of a pp,0.0247,knee,0.0989,0.8393,0.8410,"demand year 5 (x2.01), fleet fixed",False
+all,road-trip value of a pp,0.0247,best S45,0.0000,0.5818,0.5818,"demand year 5 (x2.01), fleet fixed",False
+all,road-trip value of a pp,0.0247,no reserve,2.5317,0.0000,0.0627,"battery +20 %, lighter drone",True
+all,high: 0.20 cr per pp,0.2000,knee,0.0989,0.8393,0.8529,"demand year 5 (x2.01), fleet fixed",False
+all,high: 0.20 cr per pp,0.2000,best S45,0.0000,0.5818,0.5818,"demand year 5 (x2.01), fleet fixed",False
+all,high: 0.20 cr per pp,0.2000,no reserve,2.5317,0.0000,0.5063,"battery +20 %, lighter drone",True

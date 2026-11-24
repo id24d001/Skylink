@@ -368,3 +368,86 @@ Search: NSGA-II, one run per design (C, D, E), population 32 × 40 generations, 
 ![M6 convergence](../figures/m6_convergence.png)
 
 **Convergence.** The highest S45 and lowest road share settle by generation 15 for all three designs, and the lowest cost settles by generation 25 for D and E. Design C's cheapest point is still falling slowly at generation 40 (₹2.26 cr). C is dominated by D and E everywhere on the cost–S45 view, so this does not change the knee or the top candidates.
+
+## M7 — Decision and defense
+
+Candidates: M6's top 3 on 365 days, all design E with hubs H1, H2 and H4. **knee** n4-3-4 s4-4-6 b3-2-4 k1; **best S45** n5-4-4 s4-6-5 b3-2-2 k1; **no reserve** n4-3-4 s5-5-4 b4-2-3 k0. The brief gives M7 no verification check of its own, and rule 3 requires one, so M7 has the five checks V1–V5 below (`results/m7_verification.csv`). **All 11 checks pass.** The full run took 7.5 min (74,625 simulated days) inside a 52-minute `run_all.py` M0→M7 run. That run re-produced M6 exactly (same knee, same 365-day table; only last-digit rounding differs in the archive).
+
+**V1 — the typical year is M6's year.** M7's "typical year" uses M6's 365 days and seeds (500000 + day). For all three candidates, S45 and cost equal `results/m6_resim_365.csv` to < 1e-5. M7 is fed exactly what M6 produced.
+
+**V2 — inputs re-built correctly.**
+- M7's cost function matches M6's `cost_terms`, every term, with a relative difference of 0.
+- The M1 re-size at 150 Wh/kg returns design E (15.192 kg), so the +20 % run changes only the battery.
+- Drone price −30 %: the knee's drone term is ₹37.57 lakh/yr, equal to the hand value 11 × 0.7 × (2 lakh + 45 000 × 15.19) × (CRF(10 %, 3 y) + 0.15).
+- Re-picking the knee from M6's archive at nominal price returns M6's knee.
+
+**V3 — the Monte Carlo machinery is unbiased.** With demand 1.0 and availability 1.0, 120 samples × 30 random days give S45 0.892 against 0.889 over 365 days. The difference is +0.3 pp, inside the combined 95 % CI of ±1.5 pp.
+
+**V4 — enough samples.** N = 500 samples × 30 days per candidate. The Wilson 95 % half-width on P(S45 ≥ 0.90) is 4.0, 4.0 and 3.2 pp, all ≤ 5 pp. The running estimate is flat after about 300 samples (`figures/m7_reliability.png`, right).
+
+**Robustness** (`results/m7_robustness.csv`, `results/m7_wind_weeks.csv`, `figures/m7_robustness.png`). Each week day is run with 20 demand seeds. The worst case is the worst day's S45, averaged over its seeds; the typical year has one seed per day.
+
+| Wind scenario | knee: S45 mean / worst day | best S45 | no reserve | knee road share | knee P95 (min) |
+|---|---|---|---|---|---|
+| Calm week (days 40–46, 2.5 m/s, 0 h grounded) | **0.966** / 0.951 | 0.967 / 0.951 | 0.961 / 0.940 | 4.2 % | 25 |
+| Typical year (365 days, 477 h grounded) | **0.889** / 0.000 | 0.889 / 0.000 | 0.880 / 0.000 | 10.2 % | 150 |
+| Worst monsoon week (days 209–215, 67 of 168 h grounded) | **0.534** / 0.029 | 0.535 / 0.029 | 0.522 / 0.029 | 49.6 % | 150 |
+
+The ranking is the same in all three scenarios. The worst case is set by the wind, not by the candidate: in the worst week all three lose the same grounded hours. P95 drops below 150 min only in the calm week, when fewer than 5 % of emergencies go by road.
+
+![M7 robustness](../figures/m7_robustness.png)
+
+**Reliability** (`results/m7_reliability.csv`, `results/m7_reliability_samples.csv`). Demand ~ U(0.75, 1.25) and availability ~ U(0.90, 0.98), 30-day samples, the same draws for every candidate.
+
+| Candidate | P(S45 ≥ 0.90), Wilson 95 % CI | P(day ≥ 0.90) | P(S45 ≥ 0.85) | S45 mean (5th–95th pct) | ΔS45 per +10 % demand | per +1 % availability |
+|---|---|---|---|---|---|---|
+| knee | **0.29** [0.25, 0.33] | 0.66 | 0.89 | 0.884 (0.839–0.926) | −0.04 pp | +0.02 pp |
+| best S45 | 0.30 [0.26, 0.34] | 0.67 | 0.90 | 0.885 | −0.04 pp | +0.02 pp |
+| no reserve | 0.16 [0.13, 0.20] | 0.61 | 0.79 | 0.872 | −0.14 pp | +0.10 pp |
+
+Demand and availability, over the brief's ranges, move S45 by less than 0.5 pp. The spread comes from which wind days fall in the month. The reserve drone protects emergencies against breakdowns and busy days, which is why the no-reserve point is 3 to 7 times more sensitive to both.
+
+![M7 reliability](../figures/m7_reliability.png)
+
+**Sensitivity** (`results/m7_sensitivity.csv`, `results/m7_battery_vehicles.csv`, `results/m7_price_knee.csv`, `results/m7_demand_growth.csv`, `figures/m7_sensitivity.png`). All runs use 365 days and M6's seeds, against the knee.
+
+| Change | S45 | Δ cost (₹ cr/yr) | Road share | What moved |
+|---|---|---|---|---|
+| Nominal | 0.889 | 2.251 | 10.2 % | – |
+| Battery +20 %, same drone (E_use 966 → 1,159 Wh) | **0.944** | **−0.115** | 7.3 % | emergencies by road 11.1 % → 5.6 %: headwind range losses on P11/P17 gone |
+| Battery +20 %, M1 re-sized (11.36 kg, 3 packs, V 17 m/s) | 0.870 | −0.085 | 13.2 % | lighter but slower: longer legs, more headwind loss |
+| Drone price −30 % | 0.889 | −0.161 | 10.2 % | re-picked knee E n4-4-4 s8-8-4 b2-2-4 k1 (12 drones, 20 spares): 0.889, ₹2.095 cr |
+| Demand ×1.15 (year 1), fleet fixed | 0.885 | +0.255 | 12.9 % | routine/lab orders spill to road |
+| Demand ×1.52 (year 3), fleet fixed | 0.886 | +1.293 | 26.4 % | as above |
+| Demand ×2.01 (year 5), fleet fixed | 0.884 | +3.021 | 42.1 % | as above; ₹5.27 cr, close to the ₹5.57 cr cap |
+| Demand ×2.01 (year 5), re-tuned each year | 0.885 | +1.916 | 10.4 % | E n7-5-7 s6-5-7 b5-3-5 k1 (19 drones, 18 spares, 13 bays) |
+
+Re-tuned knee by year (cost ₹ cr/yr, road share): year 1 2.48 (10.7 %), year 2 2.81 (14.4 %), year 3 3.30 (11.4 %), year 4 3.68 (12.2 %), year 5 4.17 (10.4 %). It stays under the cap throughout.
+
+![M7 sensitivity](../figures/m7_sensitivity.png)
+
+**Decision rule tested by minimax regret** (`results/m7_regret.csv`, `results/m7_scenario_table.csv`, `results/m7_regret_breakeven.csv`). Combined regret = cost regret + λ × S45 regret. S45 regret is taken over every scenario; cost regret over whole-year scenarios only.
+
+| Scenario set | λ (₹ cr per pp) | knee | best S45 | no reserve | Minimax pick |
+|---|---|---|---|---|---|
+| Within drone life (demand to year 2) | 0.055 (implied by the knee) | 0.132 | 0.293 | 0.139 | **knee** |
+| Within drone life | 0.025 (road-trip value) | 0.132 | 0.293 | 0.063 | no reserve |
+| Within drone life | 0.20 | 0.135 | 0.293 | 0.506 | **knee** |
+| All (fleet frozen to year 5) | any of the three | 0.84–0.85 | 0.58 | 0.06–0.51 | no reserve |
+
+- **The knee is the minimax-regret choice for every λ ≥ ₹0.0525 cr per pp**, which is about ₹5,300 per emergency delivered late (1 pp ≈ 99 emergencies a year).
+- Below that λ, or if the fleet is never re-tuned while demand doubles, the no-reserve point wins.
+- The rule is therefore robust to everything except the value placed on a late emergency. The memo puts that judgement to the DHO in plain words.
+
+**V5 — predict, then run** (brief rule 6; predictions committed in the decision log before the first M7 run; `results/m7_predictions_vs_results.csv`).
+
+| # | Prediction | Result | Right? |
+|---|---|---|---|
+| P1 | Calm week S45 about 0.97, same ranking | 0.966, same ranking | yes |
+| P2 | Worst week 0.65–0.75, worst day < 0.4 | 0.534, worst day 0.03 | no: too optimistic. 40 % of hours grounded removes about 40 % of emergencies outright |
+| P3 | P(≥ 0.90) 0.2–0.35, similar for all | 0.29, 0.30, 0.16 | partly: the reserve matters more than expected |
+| P4 | Battery +20 % same drone: +2 to +4 pp, cost +0.5 % | +5.5 pp, cost −5.1 % | direction right, size wrong: fewer road trips outweigh dearer packs |
+| P5 | Lighter drone: ±1 pp, cost −2 to −4 % | −1.9 pp, −3.8 % | no on S45: M1 also lowered cruise speed (20 → 17 m/s), which I did not foresee |
+| P6 | Drone price −30 %: about −₹0.1 cr, knee to more drones | −₹0.16 cr, 12 vs 11 drones (and 20 vs 14 spares) | direction right; drones are a larger cost share than estimated |
+| P7 | Fixed fleet: S45 holds 1–2 years, then falls | S45 holds all 5 years; cost and road share rise | no: emergency priority protects S45, and the overflow is routine/lab |
+| P8 | Top-up about 1 drone + 2 spares per hub every 2 years | +8 drones, +4 spares, +4 bays over 5 years, mostly at H1 and H4 | roughly: the re-tune buys drones before spares |

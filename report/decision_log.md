@@ -189,6 +189,53 @@ Plan sent to the user before building; all five open choices were confirmed as r
   - The main lever is spare packs and bays, not drones. One reserve drone per hub trades about 1 pp more S45 for about 2 pp more road share.
   - Top 3 for M7's robustness test (`results/m6_resim_365.csv`): the knee (E, ₹2.25 cr, 0.889), the highest-S45 E point n5-4-4 (₹2.45 cr, 0.889) and the E point with no reserve, n4-3-4 s5-5-4 (₹2.20 cr, 0.880).
 
+## M7 — Decision and defense
+
+Plan sent to the user before building; every choice was confirmed as recommended (top 3 = M6's knee, highest-S45 and no-reserve E points; wind weeks from the data; uniform Monte Carlo draws; two battery variants; archive re-cost for drone price; knee as the decision rule, tested by minimax regret).
+
+### Predictions written before any M7 run (brief rule 6, "predict, then run")
+Committed to the repo before the first M7 simulation, so the comparison with the results is honest. The results and the check are in the verification appendix (M7, table V5).
+
+| # | Change | Predicted move (knee, unless stated) | Why |
+|---|---|---|---|
+| P1 | Calm week (days 40–46) | S45 up to about 0.97; ranking of the 3 candidates unchanged | no gust grounding, little headwind; only queueing losses remain |
+| P2 | Worst monsoon week (days 209–215) | S45 down to about 0.65–0.75; worst day below 0.4 | 67 of 168 hours grounded; grounding hits every candidate alike |
+| P3 | Monte Carlo, demand ±25 %, availability 90–98 % | P(30-day S45 ≥ 0.90) about 0.2–0.35, similar for all three | nominal S45 is 0.889, just under the line; spread comes mostly from which days are drawn |
+| P4 | Battery +20 %, same drone (more range) | S45 up 2–4 pp, may reach 0.90; cost about +0.5 % | headwind range loss (about 6 % of emergencies for E) mostly recovered; packs cost 20 % more per pack |
+| P5 | Battery +20 %, lighter drone for the same range | S45 within ±1 pp; cost down 2–4 % | lighter, cheaper drone; still-air range unchanged so headwind losses unchanged |
+| P6 | Drone price −30 % | cost down about ₹0.1 cr/yr; knee moves to more drones, S45 up 0–0.5 pp | drones are about 15 % of annual cost; cheaper drones make extra drones a better buy than spares |
+| P7 | Demand +15 %/yr, fleet fixed | S45 holds within 1.5 pp for 1–2 years, then falls; road share and cost rise each year | fleet has slack now (utilisation about 0.3); packs and bays bind first |
+| P8 | Demand +15 %/yr, top-up | about one drone and two spares per hub every two years keeps year-0 service | packs and bays are the binding resources (M5/M6) |
+
+### Decisions
+- **Candidates = M6's top 3 on 365 days** (knee, highest S45, no reserve). Each is the pick of one of the brief's three decision rules, so the robustness test also tests the rules. *AI suggestion, confirmed by the user.* *Alternative offered and declined by the user:* swap the no-reserve point for the best design-D point, to test a second network.
+- **Wind scenarios taken from the data, not invented.** Calm = the calmest 7 consecutive days (days 40–46, 2.5 m/s). Worst monsoon week = the June–September 7-day window with the most gust-grounded hours (days 209–215, 67 of 168 h). Typical = all 365 days with M6's seeds, so M7's typical numbers must equal M6's exactly (check V1). *AI suggestion, confirmed by the user.* *Alternative rejected:* "calm" = zero wind everywhere. That is not a week that happens in the district.
+- **Monte Carlo:** demand ~ U(0.75, 1.25) and availability ~ U(0.90, 0.98). The brief gives only ranges, so uniform draws are the least-informed choice. *User-confirmed.* Each drone is out for the whole day with probability 1 − a (independent breakdowns, the simplest model of "availability"). A sample is 30 random days with its draw held fixed, so "P(S45 ≥ 0.90)" is the chance that a month meets the target; the per-day probability is reported too. N = 500 gives a Wilson half-width ≤ 5 pp (check V4).
+- **Battery +20 %, two variants.** (A) Same drone with 20 % more energy per pack. (B) M1 re-sized for the same radius with lighter packs. The brief does not say which is meant, and they answer different questions (more range vs lower cost). *AI suggestion, confirmed by the user.*
+- **Drone price −30 % by re-costing M6's archive** (3,795 simulated configurations) instead of re-running NSGA-II. Price does not change any simulated quantity, so this is exact for every configuration M6 visited. *AI suggestion, confirmed by the user.*
+- **Demand growth: the top-up re-tunes on cost, not on S45.** *AI's first version rejected after the first run.* That version added units until S45 returned to its year-0 level. But with emergencies dispatched first and one drone held in reserve, S45 hardly moves as demand grows: it is routine and lab orders that spill to road. The first version chased noise and added 9 drones at H1. The re-tune now adds the drone, spare pack or bay that saves the most annual cost while keeping S45 within 1 pp of year 0 (73 CRN days), and the result is re-checked on 365 days.
+- **Regret.**
+  - S45 regret is taken over every scenario. Cost regret is taken over whole-year scenarios only, because scaling a monsoon week's cost up to a year is not an annual cost.
+  - **The scenario set was changed after the first run**, and both versions are reported. The first set included demand years 3 and 5 with the year-0 fleet frozen. There the knee's reserve drone sends many routine orders to road, so its cost regret is large. Drones last 3 years (costs.yaml), so in the main set the fleet is re-bought and re-tuned at year 3, and the frozen-fleet years 3–5 are left out of it.
+  - Under the "all" set, the no-reserve point is the minimax-regret choice at every λ. **This is stated in the memo and on the card, not hidden.**
+- **λ (the price of one S45 point) is reported three ways, not chosen:**
+  - implied by the knee choice itself
+  - the road-trip value of 1 pp
+  - a high value
+
+  The break-even λ is in `results/m7_regret_breakeven.csv`.
+- **Decision rule: the knee**, tested by minimax regret. *AI suggestion, confirmed by the user.* *Alternatives:* best service within budget picks +₹0.2 cr/yr for +0.03 pp; minimax regret alone depends on λ, which is a value judgement the DHO should see.
+- **Memo in plain words, two pages.** It is built to PDF by `src/m7_decision/memo_pdf.py`, which fails if the PDF runs past two pages. Numbers are given as "89 in 100", and costs in crore/lakh.
+- **Results:**
+  - The knee holds up in every scenario.
+  - Battery +20 % in the same drone is the one change that reaches 0.90 (S45 0.944).
+  - Demand growth costs money, not S45.
+  - The knee is the minimax-regret choice for λ ≥ ₹0.0525 cr/pp; otherwise no reserve wins.
+  - Of the predictions, 1 was right, 3 had the right direction but the wrong size, 3 were wrong and 1 was roughly right. The misses are explained in appendix V5, not tuned away.
+  - **Final recommendation: the knee** (design E, H1 H2 H4, 11 drones, 14 spares, 9 bays, one reserve drone per hub, ₹2.25 cr/yr, S45 0.889).
+
+- **Extra hub near P11/P17 and a headwind range margin: not built.** They are not M7 items in the brief. The memo names them, with better batteries, as the route to 0.90.
+
 ## Repo
 - One script `run_all.py` runs M0→M7 in order; a module joins the chain once it has `src/<module>/run.py` with `run(ctx)`. Unimplemented modules are skipped, so the chain always runs.
 - Given data copied unchanged into `data/`; any cleaning is done in code and logged here.

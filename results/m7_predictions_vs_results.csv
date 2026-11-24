@@ -1,0 +1,9 @@
+id,change,prediction,result,as_predicted
+P1,calm week,"S45 about 0.97, ranking unchanged","S45 0.966; ranking ['no reserve', 'knee', 'best S45'] vs typical ['no reserve', 'knee', 'best S45']",yes
+P2,worst monsoon week,"S45 0.65-0.75, worst day < 0.4","S45 0.534, worst day 0.029",no
+P3,Monte Carlo,"P(S45 >= 0.90) 0.2-0.35, similar for all",knee 0.29; best S45 0.30; no reserve 0.16,no
+P4,"battery +20 %, same drone","S45 +2 to +4 pp, cost about +0.5 %","S45 +5.5 pp, cost -5.1 %",no
+P5,"battery +20 %, lighter drone","S45 within +-1 pp, cost -2 to -4 %","S45 -1.9 pp, cost -3.8 %",no
+P6,drone price -30 %,cost about -0.1 cr; knee moves to more drones,cost -0.161 cr; re-picked knee E n4-4-4 s8-8-4 b2-2-4 k1-1-1 (12 vs 11 drones),no
+P7,"demand +15 %/yr, fleet fixed","S45 holds within 1.5 pp for 1-2 years, then falls","S45 by year 0: 0.889, 1: 0.885, 2: 0.884, 3: 0.886, 4: 0.889, 5: 0.884; never more than 1.5 pp down",no
+P8,"demand +15 %/yr, top-up",about 1 drone + 2 spares per hub every 2 years,y1: E n4-4-4 s4-4-6 b3-2-4 k1-1-1; y2: E n4-4-4 s5-4-6 b3-2-4 k1-1-1; y3: E n5-4-5 s6-4-6 b4-3-4 k1-1-1; y4: E n6-4-6 s6-4-6 b4-3-4 k1-1-1; y5: E n7-5-7 s6-5-7 b5-3-5 k1-1-1,see text
