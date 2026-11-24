@@ -161,6 +161,30 @@ Plan agreed with the user before building (all five open choices accepted as rec
   - Even an unlimited fleet reaches only 0.88–0.89 over the year. Grounding costs 5–6 % and headwind range 5–7 %. P11 and P17 from H2 sit within 0.1–1.5 km of D's still-air radius.
   - This is the cost of the still-air reach rule (M1/M4 decision). M6 cannot fix it with drones, bays or spares alone. Changing the vehicle (E) or the reach rule is an M6/M7 decision for the user.
 
+## M6 — Simulation-based multi-objective optimisation
+
+Plan sent to the user before building; all five open choices were confirmed as recommended. Every decision variable and objective is taken from the brief's M6 list; anything the brief leaves open is on the M6 card.
+
+- **Designs C, D and E only; hubs and assignments fixed at M4's solution.** The brief says "on top of your M4 network", and A and B are infeasible in M4. *AI suggestion, confirmed by the user.*
+- **Bounds:** drones from the M4 count to +3 per hub, spares ≤ 2 per drone, bays ≤ drones + spares, one reserve fraction r ∈ [0, 0.5]. The lower bound keeps M4's 70 % busy-time rule. +3 is a judgement bound that keeps the search small. It is active at a hub for some front points at the expensive end. M5's +10 fleet (unlimited) reached only S45 0.896 on 73 days, against 0.902 for the best M6 point, so wider bounds would not move the front by more than the noise. *AI suggestion, confirmed by the user.*
+- **Spare-pack cost = price × 10 % a year** (capital tied up). Wear is already charged per sortie (500 cycles, as in M4), so a spare adds no wear. *AI suggestion, confirmed by the user.* *Alternative rejected:* annuitise each spare over the drone's 3-year life. That would also count wear a second time.
+- **Road cost counts every road trip** (₹2,500 emergency, ₹500 routine/lab, costs.yaml), from the simulator. This exposes a gap in M4: M4 assumed every routine and lab order is flown, so its ₹1.69 cr/yr for D is optimistic. Simulated over 365 days, D as M4 sized it costs ₹3.34 cr/yr, and ₹1.9 cr of that is road trips.
+- **S45 ≥ 0.90 is kept as an objective, not a constraint.** M5 showed wind caps S45 at about 0.88–0.89, so a constraint would leave nothing feasible. 0.90 is drawn as a reference line, and the choice of point is left to M7. *AI suggestion, confirmed by the user.*
+- **Headwind range margin in M1 and an extra hub near P11/P17 are left out of M6.** They are not in the brief's M6 decision list (user rule: follow the brief strictly). They are logged as levers for M7's sensitivity and the memo.
+- **Method: NSGA-II with common random numbers, not a 50-run surrogate** (the brief allows either). One configuration takes about 0.3 s per 73 days on 4 cores, so 5,000 runs fit in 25 min. *AI suggestion, confirmed by the user.*
+- **Own NSGA-II (about 150 lines) instead of adding pymoo**, so every step is readable and defensible. *AI suggestion accepted.*
+- **SBX / mutation distribution indices changed from the textbook 15 / 20 to 5 / 10.** *AI's first choice rejected after the ZDT1 check:* with 15 / 20 the engine stalled (gap 0.21 after 250 generations). With 5 / 10 the gap is 0.0024, and wider steps also suit the mostly integer M6 variables.
+- **One NSGA-II run per design, fronts merged**, because each design has a different number of hubs (5, 4, 3) and so a different vector length. *Alternative:* one run with a categorical gene and padded slots. That is messier, with no gain for three designs.
+- **The M4 sizing and "one spare per drone" were seeded into each design's first population**, so the search starts from the M5 baselines. Seeding cannot hide a better region, because the rest of the population is random.
+- **Knee = the point farthest from the chord of the cost–S45 front** (normalised). It is the simplest rule that a non-engineer can see on the plot. *Alternatives for M7:* minimax regret, or best S45 within budget.
+- **Weighted-sum check:** the NSGA-II front for the slice is every design-D point the two NSGA-II runs simulated, frozen before the weighted-sum runs. This keeps the check honest, because weighted-sum results cannot leak into the front they are compared with. **Result: 7/9 on or behind, 2 ahead by 0.07 and 0.18 pp of S45.** This is reported as a partial failure, not tuned away: the front is unconverged at the 0.1–0.2 pp level, which is far below the S45 noise (±2.5 pp).
+- **Re-simulation on all 365 days with fresh seeds, instead of a surrogate check.** It found a 1.6 pp optimistic bias on the 73 search days, largest for D. **Final numbers are quoted on 365 days.** The knee's S45 is 0.889, not 0.901, so the M0 target is not met by any M6 configuration.
+- **Result to carry forward to M7:**
+  - Knee: design E, 11 drones (4/3/4), 15 spare packs, 7 bays and one reserve drone per hub. ₹2.25 cr/yr, S45 0.889 ± 0.015, road share 10 %, P95 150 min (365 days).
+  - The cheapest front point is design D at ₹2.20 cr/yr with S45 0.863.
+  - The main lever is spare packs and bays, not drones. Holding one reserve drone per hub trades about 1 pp more S45 for about 2 pp more road share.
+  - Top-3 candidates for M7's robustness test: the knee (E), the highest-S45 E point (₹2.47 cr), and the cheap E point with no reserve (₹2.20 cr, S45 0.880).
+
 ## Repo
 - One script `run_all.py` runs M0→M7 in order; a module joins the chain once it has `src/<module>/run.py` with `run(ctx)`. Unimplemented modules are skipped, so the chain always runs.
 - Given data copied unchanged into `data/`; any cleaning is done in code and logged here.

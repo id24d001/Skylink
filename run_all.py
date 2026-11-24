@@ -2,6 +2,7 @@
 
     python run_all.py              # every implemented module, in order
     python run_all.py --only m3    # one or more modules, e.g. --only m1 m3
+    python run_all.py --fast       # small search budgets (M6) for a quick smoke run
 
 A module is "implemented" when src/<module>/run.py exists and defines run(ctx).
 Modules without it are skipped with a note, so the chain always runs end to end.
@@ -35,12 +36,14 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--only", nargs="+", metavar="mN",
                     help="run only these modules, e.g. --only m3")
+    ap.add_argument("--fast", action="store_true",
+                    help="small optimisation budgets (M6) for a quick end-to-end check")
     args = ap.parse_args(argv)
     only = {m.lower() for m in args.only} if args.only else None
 
     RESULTS.mkdir(exist_ok=True)
     FIGURES.mkdir(exist_ok=True)
-    ctx, status = {}, []
+    ctx, status = {"fast": args.fast}, []
     for key, pkg, title in MODULES:
         label = f"{key.upper()} {title}"
         if only and key not in only:

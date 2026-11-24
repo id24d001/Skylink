@@ -1,0 +1,2 @@
+problem,pop,gens,n_front,mean_gap_to_true_front,f1_min,f1_max,passed
+ZDT1 (30 variables),100,250,100,0.00243,0.00000,1.00000,True

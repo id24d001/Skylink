@@ -304,3 +304,50 @@ All 8 formula values lie inside the simulator's 95 % CI. The largest errors are 
 
 ![M5 live view still](../figures/m5_live_day_still.png)
 
+
+## M6 — Simulation-based multi-objective optimisation
+
+Search: NSGA-II, one run per design (C, D, E), population 32 × 25 generations, every candidate simulated on M5's 73 (wind day, seed) pairs (common random numbers). 5,109 configurations were simulated in 25 min on 4 cores. The merged front has 129 points (`results/m6_front.csv`), and every simulated configuration is in `results/m6_archive.csv`.
+
+**1. Engine check on ZDT1** (`results/m6_zdt1_check.csv`). 30 variables, population 100 × 250 generations. Mean gap to the true front f₂ = 1 − √f₁ is **0.0024**, and the front spans f₁ 0–1. The first run used the usual SBX η = 15, mutation η = 20 and stalled at a gap of 0.21 (g ≈ 1.28 instead of 1). η = 5 / 10 converges for both seeds tried, and these values are used for M6.
+
+**2. Brief's check: weighted sum vs NSGA-II on a two-objective slice** (`results/m6_ws_slice.csv`, `results/m6_slice_front.csv`, `figures/m6_ws_slice.png`). Slice: design D (the M4 choice), objectives cost and S45. NSGA-II front = the non-dominated (cost, S45) points among all design-D configurations the two NSGA-II runs simulated, frozen before the weighted-sum runs. Weighted sum: w·Ĉ + (1−w)·(1−Ŝ45) for w = 0.1…0.9, each solved by the same GA with one objective (16 × 12).
+
+| w (cost) | cost (₹ cr) | S45 | On or behind the front? | Ahead by (pp of S45) |
+|---|---|---|---|---|
+| 0.1 | 2.225 | 0.896 | yes | – |
+| 0.2 | 2.237 | 0.895 | yes | – |
+| 0.3 | 2.206 | 0.896 | **no** | 0.18 |
+| 0.4 | 2.137 | 0.888 | **no** | 0.07 |
+| 0.5 | 2.133 | 0.886 | yes | – |
+| 0.6 | 2.215 | 0.896 | yes | – |
+| 0.7 | 2.145 | 0.882 | yes | – |
+| 0.8 | 2.128 | 0.885 | yes | – |
+| 0.9 | 2.130 | 0.873 | yes | – |
+
+**7 of 9 pass; 2 fail by 0.07 and 0.18 pp of S45.** The NSGA-II front is not fully converged at this budget, at the 0.1–0.2 pp level. That is about 1/15 of the 73-day 95 % CI (±2.5 pp), so it does not change which designs or which region of the front are best. Several weights (0.1, 0.6; 0.5, 0.8) land on the same few points and leave gaps along the front. That is the expected weakness of a weighted sum, and the reason NSGA-II is the main method.
+
+![M6 weighted sum vs NSGA-II](../figures/m6_ws_slice.png)
+
+**3. Re-simulation off the search days** (`results/m6_resim_365.csv`, `figures/m6_resim.png`). No surrogate is used, so the brief's "re-simulated front points agree with surrogate predictions within the stated error" becomes: do front points found on 73 days hold up on all 365 days with fresh demand seeds?
+
+| Point | Cost 73 d / 365 d (₹ cr) | S45 73 d | S45 365 d | Road share 365 d | P95 |
+|---|---|---|---|---|---|
+| Cheapest (D n2-3-2-3, s2-3-2-2, b3-3-1-3, k0) | 2.12 / 2.20 | 0.887 ± 0.025 | 0.863 ± 0.015 | 9.7 % | 150 |
+| E n4-3-4, s6-5-4, b3-4-3, k0 | 2.16 / 2.20 | 0.891 ± 0.028 | 0.880 ± 0.015 | 8.2 % | 150 |
+| **Knee: E n4-3-4, s4-5-6, b3-2-2, k1-1-1** | **2.20 / 2.25** | **0.901 ± 0.028** | **0.889 ± 0.015** | **10.3 %** | 150 |
+| Highest S45 (E n5-4-4, s4-6-5, b3-2-2, k2-1-1) | 2.41 / 2.47 | 0.902 ± 0.027 | 0.889 ± 0.015 | 9.4 % | 150 |
+| D as M4 (M5 baseline) | 3.28 / 3.34 | 0.851 ± 0.025 | 0.823 ± 0.014 | 45.8 % | 150 |
+| D + 1 spare per drone (M5) | 2.62 / 2.67 | 0.882 ± 0.026 | 0.862 ± 0.014 | 27.1 % | 150 |
+
+- **11 of 11 agree within the combined 95 % CI.** Spearman rank correlation between the 73-day and 365-day S45 is 0.89.
+- **There is a bias.** Every point is lower on 365 days, by 1.6 pp on average (D points 2.0–2.8 pp, E points 0.8–1.2 pp). The 73 random days are milder than the year for D's long H2 legs, which is the same effect M5 found at the wind ceiling (0.896 vs 0.88). The search also picks points that did well on those days.
+- **Consequence:** on 365 days no configuration reaches S45 = 0.90. Final numbers are quoted on 365 days, and on the year, E points beat D points on S45, which the 73 days had blurred.
+
+![M6 re-simulation](../figures/m6_resim.png)
+
+**4. Cost hand check** (`results/m6_cost_hand_check.csv`). For "D as M4", M6's hubs (₹27.72 lakh), drones (₹31.97 lakh), bays (₹0.95 lakh) and operators (₹60.48 lakh) match M4's cost breakdown to < 1e-6. The simulated terms differ from M4 on purpose: M4 charged road trips only for emergencies in grounded hours, while the simulator also sends routine and lab orders by road when packs and bays run short.
+
+**Front** (`figures/m6_pareto.png`). (a) Cost vs S45, with the knee. (b) Cost vs road share. (c) P95 against the share of emergencies sent by road: P95 = 150 min at every front point, because 10–13 % of emergencies still go by road (wind), and P95 can fall below 150 min only when that share is below 5 %.
+
+![M6 Pareto front](../figures/m6_pareto.png)
