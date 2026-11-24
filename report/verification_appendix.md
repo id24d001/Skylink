@@ -5,7 +5,7 @@ into `figures/` and `results/`.
 
 | Module | Check required by the brief | Evidence | Status |
 |---|---|---|---|
-| M0 | Formulation card review (no code check) | — | ⬜ |
+| M0 | Formulation card review; data audit backing the card's numbers | `figures/m0_decision_hierarchy.png`, `results/m0_data_checks.csv`, `results/m0_framing_numbers.csv` | ✅ |
 | M1 | MDA convergence plot; finite-difference gradient check at two step sizes; MDF vs IDF within 1% | `figures/m1_mda_convergence.png`, `figures/m1_gradient_check.png`, `results/m1_gradient_check.csv`, `results/m1_mdf_vs_idf.csv`, `results/m1_hand_check.csv` | ✅ |
 | M2 | MBB-beam benchmark reproduced; no-filter and p = 1 cases explained | — | ⬜ |
 | M3 | LOOCV error table; parity plot; note on oracle noise | `results/m3_loo_table.csv`, `figures/m3_loo_parity.png`, `figures/m3_loo_parity_24pts.png` | 🟡 requests 1+2 |
@@ -13,6 +13,15 @@ into `figures/` and `results/`.
 | M5 | One hub, exponential service, no wind/outage vs Erlang C; days chosen so S45 95% CI < ±3 pp | — | ⬜ |
 | M6 | Weighted-sum points on or behind NSGA-II front (2-objective slice); re-simulated front vs surrogate | — | ⬜ |
 | M7 | Robustness / reliability / sensitivity tables | — | ⬜ |
+
+## M0 — Problem framing
+
+The brief asks for no code check in M0. To make sure the card's numbers come from the data, `run_all.py` audits
+every file (`results/m0_data_checks.csv`, 18 checks). Two are flagged and handled: the routine hourly fractions sum to
+1.1993 (rescaled to 1 for M5), and the catalogue has 28 tubes, not 30. The numbers quoted on the card (demand per day,
+₹5.57 crore road-only cost, 2 bays in an outage, ₹15.1 lakh minimum staff per hub) are in `results/m0_framing_numbers.csv`.
+
+![M0 decision hierarchy](../figures/m0_decision_hierarchy.png)
 
 ## M1 — Vehicle MDO
 
