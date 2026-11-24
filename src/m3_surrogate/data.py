@@ -55,3 +55,24 @@ def make_features(D, T):
     x1 = (D - D_MIN) / (D_MAX - D_MIN)
     x2 = (T - T_MIN) / (T_MAX - T_MIN)
     return np.column_stack([x1, x2])
+
+
+def average_repeats(df):
+    """Merge repeated (D, T) points into one row with the mean FM.
+
+    Returns (unique_df, repeats) where repeats has one row per repeated (D, T): n, FM values,
+    mean, and the spread. Interpolating models (RBF with smoothing=0) cannot take two FM values at
+    the same input, and leave-one-out would be optimistic if the copy of a left-out point stayed
+    in the training set, so all models are fitted and cross-validated on the unique points.
+    """
+    key = [df.D_m.round(4), df.T_N.round(3)]
+    g = df.groupby(key, sort=False)
+    uniq = g.agg(FM=("FM", "mean"), n=("FM", "size"),
+                 batch=("batch", lambda b: "+".join(sorted(set(b))))).reset_index()
+    uniq["DL"] = disk_loading(uniq.D_m, uniq.T_N)
+    uniq.index = np.arange(1, len(uniq) + 1)
+    uniq.index.name = "pt"
+    rep = g.FM.agg(n="size", values=lambda v: list(np.round(v, 4)), mean="mean",
+                   diff=lambda v: v.max() - v.min()).reset_index()
+    rep = rep[rep.n > 1].reset_index(drop=True)
+    return uniq, rep

@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from common import ORACLE, RESULTS, FIGURES
-from . import (load_oracle, make_features, QuadraticSurrogate, RBFSurrogate,
+from . import (load_oracle, average_repeats, make_features, QuadraticSurrogate, RBFSurrogate,
                GPSurrogate, loo_predictions, loo_table)
 
 
@@ -28,9 +28,12 @@ def candidate_models():
 
 
 def run(ctx):
-    df = load_oracle(ORACLE)
+    raw = load_oracle(ORACLE)
+    df, repeats = average_repeats(raw)        # repeated (D, T) -> one point with mean FM
     X, y = make_features(df.D_m, df.T_N), df.FM.values
-    print(f"  oracle points: {len(df)} from {sorted(df.batch.unique())}")
+    print(f"  oracle points: {len(raw)} from {sorted(raw.batch.unique())}, {len(df)} unique")
+    if len(repeats):
+        print(f"  repeats (noise check):\n{repeats.to_string(index=False)}")
 
     loo = {name: loo_predictions(m, X, y) for name, m in candidate_models().items()}
     table = loo_table(loo, y)

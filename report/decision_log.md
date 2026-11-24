@@ -38,6 +38,15 @@ Format: **[module] decision** — why. Mark AI suggestions as *AI accepted* / *A
 - *AI accepted*: the scoring rules in `src/m3_surrogate/select_points.py` — exploration = 0.7·σ + 0.3·|RBF−GP| (normalised); exploitation = closeness to M1 hover points (Gaussian, width 0.08 scaled; C weight 1, others 0.6) × σ; greedy picks with min distance 0.10 scaled and σ updated after each pick; random uniform with seed 6002; repeat of pt 3.
 - *AI rejected (user)*: reserve one exploration pick for the DL gap 151–217. Declined; the score-based picks (three box corners/edges) were kept as they are.
 - Request 2 points (defence in `report/m3_request2_defence.md`, figure `figures/m3_request2_scores.png`): exploitation (0.755, 19.38), (0.735, 26.13), (0.790, 38.93); exploration (0.350, 40.00), (0.800, 8.00), (0.410, 8.00); random (0.644, 21.17), (0.717, 34.60); repeat (0.383, 25.97). GP and RBF predictions recorded before sending.
+- **Request 2 result (`data/oracle/result_2.csv`, committed with the user's OK; repo stays public):**
+  - Hold-out check on the 8 new locations (predictions written before the oracle answered): RBF cubic RMSE 0.024, GP (D, T) 0.127 (0.038 without the corner).
+  - Cliff: (0.35 m, 40 N), DL 416, gave FM 0.1995. GP (D, T) had predicted 0.545 ± 0.067 (z = −5.1). RBF cubic had predicted 0.231.
+  - Low-DL corner (0.80, 8), DL 16, gave FM 0.492.
+- **Noise:** the repeat of pt 3 gave 0.4683 then 0.4730 (difference 0.0047), so σ_noise ≈ 0.003. One pair is order-of-magnitude evidence only. This is about 10× smaller than the LOO errors, so the misfit is model shape, not oracle noise. The oracle is treated as near-deterministic: interpolating models are acceptable, and the GP nugget is allowed to stay small.
+- **Repeats are averaged before fitting** (`average_repeats`): 24 runs become 23 unique points. Interpolating RBFs cannot take two values at one input, and LOO would be optimistic if the copy of a left-out point stayed in training.
+- **LOOCV on 23 points (inputs D, T):** quadratic 0.080, RBF thin-plate 0.053, **RBF cubic 0.034 (Q² 0.90, best)**, GP 0.068 (Q² 0.59, mean z² 4.9, still over-confident). The worst point is the DL-416 cliff for most models.
+- **Trade-off revisited (reference only, not adopted):** the same GP on (log DL, D) gives LOO 0.015 (Q² 0.98). Its D length scale goes to ~7.9, near the upper bound, so once DL is known, D barely matters. ⬜ User to decide whether to keep (D, T) for simplicity or switch the GP to (log DL, D).
+- ⬜ Request 3 (6 points): user to plan. Candidates: the cliff between DL 225 and 416 (no data), the M1 designs' hover points after the M1 re-run with surrogate FM, and maybe 1 random check point.
 - Data provenance: `notebooks/M3_oracle_request1_LHS.ipynb` prints 15 points (seed 42) that do **not** match the points in `data/oracle/result_1.csv` (different seed or pyDOE version when the request was actually sent). `result_1.csv` is the source of truth; the notebook is kept as a record of the method only. ⬜ To fix: regenerate or annotate the notebook so its points match result_1.
 
 ## Repo
